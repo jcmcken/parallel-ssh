@@ -61,7 +61,8 @@ def do_pscp(hosts, localargs, remote, opts):
     for host, port, user in hosts:
         cmd = ['scp', '-qC']
         if opts.options:
-            cmd += ['-o', opts.options]
+            for opt in opts.options:
+                cmd += ['-o', opt]
         if port:
             cmd += ['-P', port]
         if opts.recursive:

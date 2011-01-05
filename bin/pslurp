@@ -79,7 +79,8 @@ def do_pslurp(hosts, remote, local, opts):
             localpath = "%s/%s" % (host, local)
         cmd = ['scp', '-qC']
         if opts.options:
-            cmd += ['-o', opts.options]
+            for opt in opts.options:
+                cmd += ['-o', opt]
         if port:
             cmd += ['-P', port]
         if opts.recursive:

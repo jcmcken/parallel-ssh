@@ -37,8 +37,8 @@ def common_parser():
             help='output directory for stderr files (OPTIONAL)')
     parser.add_option('-t', '--timeout', dest='timeout', type='int',
             help='timeout (secs) (-1 = no timeout) per host (OPTIONAL)')
-    parser.add_option('-O', '--options', dest='options',
-            help='SSH options (OPTIONAL)')
+    parser.add_option('-O', '--option', dest='options', action='append',
+            metavar='OPTION', help='SSH option (OPTIONAL)')
     parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
             help='turn on warning and diagnostic messages (OPTIONAL)')
     parser.add_option('-A', '--askpass', dest='askpass', action='store_true',
@@ -60,7 +60,6 @@ def common_defaults(**kwargs):
             ('outdir', 'PSSH_OUTDIR'),
             ('errdir', 'PSSH_ERRDIR'),
             ('timeout', 'PSSH_TIMEOUT'),
-            ('options', 'PSSH_OPTIONS'),
             ('verbose', 'PSSH_VERBOSE'),
             ('print_out', 'PSSH_PRINT'),
             ('askpass', 'PSSH_ASKPASS'),
@@ -74,6 +73,10 @@ def common_defaults(**kwargs):
         value = os.getenv(var)
         if value:
             defaults[option] = value
+
+    value = os.getenv('PSSH_OPTIONS')
+    if value:
+        defaults['options'] = [value]
 
     value = os.getenv('PSSH_HOSTS')
     if value:

@@ -96,7 +96,8 @@ def do_pssh(hosts, cmdline, opts):
         if not opts.verbose:
             cmd.append('-q')
         if opts.options:
-            cmd += ['-o', opts.options]
+            for opt in opts.options:
+                cmd += ['-o', opt]
         if user:
             cmd += ['-l', user]
         if port:
