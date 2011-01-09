@@ -54,10 +54,20 @@ def executable_path():
 
 def askpass_main():
     """Connects to pssh over the socket specified at PSSH_ASKPASS_SOCKET."""
+
+    # It's not documented anywhere, as far as I can tell, but ssh may send
+    # a command-line arg if it wants something other than a password.
+    if len(sys.argv) > 1:
+        input = sys.argv[1]
+        sys.stderr.write(input)
+        sys.stderr.write('\n')
+        sys.exit(1)
+
     address = os.getenv('PSSH_ASKPASS_SOCKET')
     if not address:
-        sys.stderr.write(textwrap.fill("Permission denied.  Please create"
-                " SSH keys or use the -A option to provide a password."))
+        sys.stderr.write(textwrap.fill("pssh error: SSH requested a password."
+                " Please create SSH keys or use the -A option to provide a"
+                " password."))
         sys.stderr.write('\n')
         sys.exit(1)
 
