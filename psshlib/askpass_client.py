@@ -55,13 +55,15 @@ def executable_path():
 def askpass_main():
     """Connects to pssh over the socket specified at PSSH_ASKPASS_SOCKET."""
 
-    # It's not documented anywhere, as far as I can tell, but ssh may send
-    # a command-line arg if it wants something other than a password.
+    # It's not documented anywhere, as far as I can tell, but ssh may prompt
+    # for a password or ask a yes/no question.  The command-line argument
+    # specifies what is needed.
     if len(sys.argv) > 1:
-        input = sys.argv[1]
-        sys.stderr.write(input)
-        sys.stderr.write('\n')
-        sys.exit(1)
+        prompt = sys.argv[1]
+        if not prompt.endswith('password: '):
+            sys.stderr.write(prompt)
+            sys.stderr.write('\n')
+            sys.exit(1)
 
     address = os.getenv('PSSH_ASKPASS_SOCKET')
     if not address:
