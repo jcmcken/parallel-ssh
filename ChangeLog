@@ -1,3 +1,21 @@
+XXXX-XX-XX Andrew McNabb <amcnabb at mcnabbs.org>
+	* Version 2.2
+	  - Added a basic man page for pssh (issue #10).
+	  - Fixed askpass to work correctly in the presence of non-password
+	    prompts from ssh (issue #23).
+	  - Updated the -O option so that it can be specified multiple times
+	    (issue #25).  Thanks to soham.mehta for the patch.
+	  - Fixed host file loader to give an error instead of a backtrace
+	    if a file is not found.
+	  - Fixed prsync's "-ssh-args" mangling of its argument (issue #24).
+	    Thanks to jbyers for the patch.
+	  - Fixed some variable names to appease pylint.  Thanks to solj for
+	    the patch.
+	  - Improved pscp to be able to copy multiple local files.  Thanks
+	    to Carlo Marcelo Arenas Belon for the patch.
+	  - Deprecated the PSSH_HOSTS environment variable that seems to
+	    cause more problems than it's worth.
+	  - Other minor fixes
 2010-02-26 Andrew McNabb <amcnabb at mcnabbs.org>
 	* Version 2.1.1
 	  - Fixed a problem causing PSSH to crash with Python 2.4.
