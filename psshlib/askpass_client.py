@@ -60,7 +60,7 @@ def askpass_main():
     # specifies what is needed.
     if len(sys.argv) > 1:
         prompt = sys.argv[1]
-        if not prompt.endswith('password: '):
+        if not prompt.lower().endswith('password: '):
             sys.stderr.write(prompt)
             sys.stderr.write('\n')
             sys.exit(1)
