@@ -248,10 +248,7 @@ class Task(object):
             success = "[SUCCESS]"
             failure = "[FAILURE]"
             stderr = "Stderr: "
-        if self.port:
-            host = '%s:%s' % (self.host, self.port)
-        else:
-            host = self.host
+        host = self.pretty_host
         if self.failures:
             print(' '.join((progress, tstamp, failure, host, error)))
         else:
