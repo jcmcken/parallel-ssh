@@ -15,6 +15,8 @@ XXXX-XX-XX Andrew McNabb <amcnabb at mcnabbs.org>
 	    to Carlo Marcelo Arenas Belon for the patch.
 	  - Deprecated the PSSH_HOSTS environment variable that seems to
 	    cause more problems than it's worth.
+	  - Added the ability to set multiple hosts with a single -H flag
+	    (issue #26). Thanks to ilya@sukhanov.net for the patch.
 	  - Other minor fixes
 2010-02-26 Andrew McNabb <amcnabb at mcnabbs.org>
 	* Version 2.1.1
