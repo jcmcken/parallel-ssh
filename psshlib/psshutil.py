@@ -8,35 +8,52 @@ import sys
 HOST_FORMAT = 'Host format is [user@]host[:port] [user]'
 
 
-def read_hosts(pathnames, default_user=None, default_port=None):
+def read_host_files(paths, default_user=None, default_port=None):
+    """Reads the given host files.
+
+    Returns a list of (host, port, user) triples.
     """
-    Read hostfiles specified by the given pathnames with lines of the form:
-    host[:port] [login]. Return three arrays: hosts, ports, and users.  These
-    can be used directly for all ssh-based commands (e.g., ssh, scp, rsync -e
-    ssh, etc.)
+    hosts = []
+    if paths:
+        for path in paths:
+            hosts.extend(read_host_file(path))
+    return hosts
+
+
+def read_host_file(path, default_user=None, default_port=None):
+    """Reads the given host file.
+
+    Lines are of the form: host[:port] [login].
+    Returns a list of (host, port, user) triples.
     """
     lines = []
-    if not pathnames:
-        return lines
-    for pathname in pathnames:
-        f = open(pathname)
-        for line in f:
-            lines.append(line.strip())
-        f.close()
+    f = open(path)
+    for line in f:
+        lines.append(line.strip())
+    f.close()
+
     hosts = []
     for line in lines:
         # Skip blank lines or lines starting with #
         line = line.strip()
         if not line or line.startswith('#'):
             continue
-        host, port, user = parse_line(line, default_user, default_port)
+        host, port, user = parse_host_entry(line, default_user, default_port)
         if host:
             hosts.append((host, port, user))
     return hosts
 
-# TODO: eventually deprecate the second host field and standardize on the
+
+# TODO: deprecate the second host field and standardize on the
 # [user@]host[:port] format.
-def parse_line(line, default_user, default_port):
+def parse_host_entry(line, default_user, default_port):
+    """Parses a single host entry.
+
+    This may take either the of the form [user@]host[:port] or
+    host[:port][ user].
+
+    Returns a (host, port, user) triple.
+    """
     fields = line.split()
     if len(fields) > 2:
         sys.stderr.write('Bad line: "%s". Format should be'
@@ -55,8 +72,23 @@ def parse_line(line, default_user, default_port):
     return host, port, user
 
 
+def parse_host_string(host_string, default_user=None, default_port=None):
+    """Parses a whitespace-delimited string of "[user@]host[:port]" entries.
+
+    Returns a list of (host, port, user) triples.
+    """
+    hosts = []
+    entries = host_string.split()
+    for entry in entries:
+        hosts.append(parse_host(entry, default_user, default_port))
+    return hosts
+
+
 def parse_host(host, default_user=None, default_port=None):
-    """Parses host entries of the form "[user@]host[:port]"."""
+    """Parses host entries of the form "[user@]host[:port]".
+
+    Returns a (host, port, user) triple.
+    """
     # TODO: when we stop supporting Python 2.4, switch to using str.partition.
     user = default_user
     port = default_port

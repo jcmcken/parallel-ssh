@@ -51,7 +51,7 @@ def parse_args():
     if len(args) == 0 and not opts.send_input:
         parser.error('Command not specified.')
 
-    if not opts.host_files and not opts.host_entries:
+    if not opts.host_files and not opts.host_strings:
         parser.error('Hosts not specified.')
 
     return opts, args
@@ -114,12 +114,13 @@ if __name__ == "__main__":
     opts, args = parse_args()
     cmdline = " ".join(args)
     try:
-        hosts = psshutil.read_hosts(opts.host_files, default_user=opts.user)
+        hosts = psshutil.read_host_files(opts.host_files,
+            default_user=opts.user)
     except IOError:
         _, e, _ = sys.exc_info()
         sys.stderr.write('Could not open hosts file: %s\n' % e.strerror)
         sys.exit(1)
-    if opts.host_entries:
-        for entry in opts.host_entries:
-            hosts.append(psshutil.parse_host(entry, default_user=opts.user))
+    if opts.host_strings:
+        for s in opts.host_strings:
+            hosts.extend(psshutil.parse_host_string(s, default_user=opts.user))
     do_pssh(hosts, cmdline, opts)

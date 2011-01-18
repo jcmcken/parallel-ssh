@@ -91,9 +91,23 @@ given number of times.
 .B \-\-host
 .RI [ user @] host [: port ]
 .PD 0
+.TP
+.B \-H
+.RI \(dq[ user @] host [: port ]
+[
+.RI [ user @] host [: port
+] ... ]\(dq
+.PD 0
+.TP
+.B \-\-host
+.RI \(dq[ user @] host [: port ]
+[
+.RI [ user @] host [: port
+] ... ]\(dq
+.PD 0
 .IP
-Add the given host to the list of hosts.  This option may be given multiple
-times and in conjunction with the
+Add the given host strings to the list of hosts.  This option may be given
+multiple times, and may be used in conjunction with the
 .B \-h
 option.
 
