@@ -53,8 +53,6 @@ def do_pnuke(hosts, pattern, opts):
     manager = Manager(opts)
     for host, port, user in hosts:
         cmd = ['ssh', host, '-o', 'NumberOfPasswordPrompts=1']
-        if not opts.verbose:
-            cmd.append('-q')
         if opts.options:
             for opt in opts.options:
                 cmd += ['-o', opt]

@@ -93,8 +93,6 @@ def do_pssh(hosts, cmdline, opts):
     for host, port, user in hosts:
         cmd = ['ssh', host, '-o', 'NumberOfPasswordPrompts=1',
                 '-o', 'SendEnv=PSSH_NODENUM']
-        if not opts.verbose:
-            cmd.append('-q')
         if opts.options:
             for opt in opts.options:
                 cmd += ['-o', opt]
