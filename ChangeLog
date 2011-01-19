@@ -19,6 +19,8 @@ XXXX-XX-XX Andrew McNabb <amcnabb at mcnabbs.org>
 	    (issue #26). Thanks to ilya@sukhanov.net for the patch.
 	  - Stopped passing "-q" to ssh by default (this masked error messages
 	    and reduced usability).
+	  - Removed automatic reading from stdin (deprecated in version 2.1).
+	    Please use the "-I" option instead.
 	  - Other minor fixes
 2010-02-26 Andrew McNabb <amcnabb at mcnabbs.org>
 	* Version 2.1.1
