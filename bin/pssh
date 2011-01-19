@@ -56,27 +56,6 @@ def parse_args():
 
     return opts, args
 
-def buffer_input():
-    """Read any immediately available data from standard input.
-
-    Doesn't work if stdin blocks for any reason.  This needs to be deprecated.
-    """
-    fileno = sys.stdin.fileno()
-    origfl = fcntl.fcntl(fileno, fcntl.F_GETFL)
-    fcntl.fcntl(fileno, fcntl.F_SETFL, origfl | os.O_NONBLOCK)
-    try:
-        # Python 3
-        read_stdin = sys.stdin.buffer.read
-    except AttributeError:
-        # Python 2
-        read_stdin = sys.stdin.read
-    try:
-        stdin = read_stdin()
-    except IOError: # Stdin contained no information
-        stdin = ""
-    fcntl.fcntl(fileno, fcntl.F_SETFL, origfl)
-    return stdin
-
 def do_pssh(hosts, cmdline, opts):
     if opts.outdir and not os.path.exists(opts.outdir):
         os.makedirs(opts.outdir)
@@ -84,11 +63,6 @@ def do_pssh(hosts, cmdline, opts):
         os.makedirs(opts.errdir)
     if opts.send_input:
         stdin = sys.stdin.read()
-    else:
-        stdin = buffer_input()
-        if stdin:
-            sys.stderr.write('Automatic reading from stdin is deprecated.  '
-                    'Please use the -I option.\n')
     manager = Manager(opts)
     for host, port, user in hosts:
         cmd = ['ssh', host, '-o', 'NumberOfPasswordPrompts=1',
