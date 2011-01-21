@@ -27,6 +27,7 @@ class Manager(object):
     """Executes tasks concurrently.
 
     Tasks are added with add_task() and executed in parallel with run().
+    Returns a list of the exit statuses of the processes.
 
     Arguments:
         limit: Maximum number of commands running at once.
@@ -86,6 +87,9 @@ class Manager(object):
         if writer:
             writer.signal_quit()
             writer.join()
+
+        statuses = [task.exitstatus for task in self.done]
+        return statuses
 
     def clear_sigchld_handler(self):
         signal.signal(signal.SIGCHLD, signal.SIG_DFL)

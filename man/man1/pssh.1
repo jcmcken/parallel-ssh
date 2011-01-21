@@ -283,7 +283,38 @@ pssh -i -H host1 -H host2 -x "-O StrictHostKeyChecking=no -O UserKnownHostsFile=
 .RE
 
 
+.SH EXIT STATUS VALUES
+.PP
+
+.TP
+.B 0
+Success
+
+.TP
+.B 1
+Miscellaneous error
+
+.TP
+.B 2
+Syntax or usage error
+
+.TP
+.B 3
+At least one process was killed by a signal or timed out.
+
+.TP
+.B 4
+All processes completed, but at least one ssh process reported an error
+(exit status 255).
+
+.TP
+.B 5
+There were no ssh errors, but at least one remote command had a non-zero exit
+status.
+
+
 .SH AUTHORS
+.PP
 Written by
 Brent N. Chun <bnc@theether.org> and
 Andrew McNabb <amcnabb@mcnabbs.org>.

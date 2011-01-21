@@ -83,9 +83,21 @@ def do_pssh(hosts, cmdline, opts):
         t = Task(host, port, user, cmd, opts, stdin)
         manager.add_task(t)
     try:
-        manager.run()
+        statuses = manager.run()
     except FatalError:
         sys.exit(1)
+
+    if min(statuses) < 0:
+        # At least one process was killed.
+        sys.exit(3)
+    # The any builtin was introduced in Python 2.5 (so we can't use it yet):
+    #elif any(x==255 for x in statuses):
+    for status in statuses:
+        if status == 255:
+            sys.exit(4)
+    for status in statuses:
+        if status != 0:
+            sys.exit(5)
    
 if __name__ == "__main__":
     opts, args = parse_args()

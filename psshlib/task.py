@@ -20,8 +20,14 @@ except NameError:
 
 
 class Task(object):
-    """Starts a process and manages its input and output."""
+    """Starts a process and manages its input and output.
+    
+    Upon completion, the `exitstatus` attribute is set to the exit status
+    of the process.
+    """
     def __init__(self, host, port, user, cmd, opts, stdin=None):
+        self.exitstatus = None
+
         self.host = host
         self.pretty_host = host
         self.port = port
@@ -130,18 +136,20 @@ class Task(object):
         if self.stdin or self.stdout or self.stderr:
             return True
         if self.proc:
-            self.returncode = self.proc.poll()
-            if self.returncode is None:
+            self.exitstatus = self.proc.poll()
+            if self.exitstatus is None:
                 if self.killed:
+                    # Set the exitstatus to what it would be if we waited.
+                    self.exitstatus = -signal.SIGKILL
                     return False
                 else:
                     return True
             else:
-                if self.returncode < 0:
-                    message = 'Killed by signal %s' % (-self.returncode)
+                if self.exitstatus < 0:
+                    message = 'Killed by signal %s' % (-self.exitstatus)
                     self.failures.append(message)
-                elif self.returncode > 0:
-                    message = 'Exited with error code %s' % self.returncode
+                elif self.exitstatus > 0:
+                    message = 'Exited with error code %s' % self.exitstatus
                     self.failures.append(message)
                 self.proc = None
                 return False
