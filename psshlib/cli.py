@@ -8,7 +8,8 @@ import sys
 import textwrap
 
 _DEFAULT_PARALLELISM = 32
-_DEFAULT_TIMEOUT     = -1 # "infinity" by default
+_DEFAULT_TIMEOUT     = 0 # "infinity" by default
+
 
 def common_parser():
     """
@@ -36,7 +37,7 @@ def common_parser():
     parser.add_option('-e', '--errdir', dest='errdir',
             help='output directory for stderr files (OPTIONAL)')
     parser.add_option('-t', '--timeout', dest='timeout', type='int',
-            help='timeout (secs) (-1 = no timeout) per host (OPTIONAL)')
+            help='timeout (secs) (0 = no timeout) per host (OPTIONAL)')
     parser.add_option('-O', '--option', dest='options', action='append',
             metavar='OPTION', help='SSH option (OPTIONAL)')
     parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
@@ -51,6 +52,7 @@ def common_parser():
             metavar='ARG', help='Extra command-line argument')
 
     return parser
+
 
 def common_defaults(**kwargs):
     defaults = dict(par=_DEFAULT_PARALLELISM, timeout=_DEFAULT_TIMEOUT)
@@ -91,6 +93,7 @@ def common_defaults(**kwargs):
         defaults['host_files'] = [value]
 
     return defaults
+
 
 def shlex_append(option, opt_str, value, parser):
     """An optparse callback similar to the append action.
