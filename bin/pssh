@@ -63,6 +63,8 @@ def do_pssh(hosts, cmdline, opts):
         os.makedirs(opts.errdir)
     if opts.send_input:
         stdin = sys.stdin.read()
+    else:
+        stdin = None
     manager = Manager(opts)
     for host, port, user in hosts:
         cmd = ['ssh', host, '-o', 'NumberOfPasswordPrompts=1',
