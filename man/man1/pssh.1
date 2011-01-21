@@ -131,7 +131,8 @@ Use the given number as the maximum number of concurrent connections.
 .PD 0
 .TP
 .BI \-\-timeout " timeout"
-Make connections time out after the given number of seconds.
+Make connections time out after the given number of seconds.  With a value
+of 0, pssh will not timeout any connections.
 
 .TP
 .BI \-o " outdir"
@@ -243,7 +244,43 @@ output from different hosts are interleaved.
 
 .SH EXAMPLE
 
-Examples go here.
+.PP
+Connect to host1 and host2, and print "hello, world" from each:
+.RS
+pssh -i -H "host1 host2" echo "hello, world"
+.RE
+
+.PP
+Print "hello, world" from each host specified in the file hosts.txt:
+.RS
+pssh -i -h hosts.txt echo "hello, world"
+.RE
+
+.PP
+Run a command as root with a prompt for the root password:
+.RS
+pssh -i -h hosts.txt -A -l root echo hi
+.RE
+
+.PP
+Run a long command without timing out:
+.RS
+pssh -i -h hosts.txt -t 0 sleep 10000
+.RE
+
+.PP
+If the file hosts.txt has a large number of entries, say 100, then the
+parallelism option may also be set to 100 to ensure that the commands are run
+concurrently:
+.RS
+pssh -i -h hosts.txt -p 100 -t 0 sleep 10000
+.RE
+
+.PP
+Run a command without checking or saving host keys:
+.RS
+pssh -i -H host1 -H host2 -x "-O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null -O GlobalKnownHostsFile=/dev/null" echo hi
+.RE
 
 
 .SH AUTHORS
