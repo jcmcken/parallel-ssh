@@ -1,4 +1,4 @@
-XXXX-XX-XX Andrew McNabb <amcnabb at mcnabbs.org>
+2011-01-21 Andrew McNabb <amcnabb at mcnabbs.org>
 	* Version 2.2
 	  - Added a basic man page for pssh (issue #10).
 	  - Fixed askpass to work correctly in the presence of non-password
