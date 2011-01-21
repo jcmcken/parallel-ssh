@@ -77,9 +77,16 @@ def do_pscp(hosts, localargs, remote, opts):
         t = Task(host, port, user, cmd, opts)
         manager.add_task(t)
     try:
-        manager.run()
+        statuses = manager.run()
     except FatalError:
         sys.exit(1)
+
+    if min(statuses) < 0:
+        # At least one process was killed.
+        sys.exit(3)
+    for status in statuses:
+        if status != 0:
+            sys.exit(4)
 
 if __name__ == "__main__":
     opts, args = parse_args()
