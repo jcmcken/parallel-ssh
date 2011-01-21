@@ -18,6 +18,11 @@ from psshlib import psshutil
 READ_SIZE = 1 << 16
 
 
+class FatalError(RuntimeError):
+    """A fatal error in the PSSH Manager."""
+    pass
+
+
 class Manager(object):
     """Executes tasks concurrently.
 
@@ -257,7 +262,7 @@ class IOMap(object):
             if errno != EINTR:
                 sys.stderr.write('Fatal error reading from wakeup pipe: %s\n'
                         % message)
-                sys.exit(-1)
+                raise FatalError
 
 
 class Writer(threading.Thread):

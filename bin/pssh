@@ -21,7 +21,7 @@ if os.path.exists(os.path.join(parent, 'psshlib')):
     sys.path.insert(0, parent)
 
 from psshlib import psshutil
-from psshlib.manager import Manager
+from psshlib.manager import Manager, FatalError
 from psshlib.task import Task
 from psshlib.cli import common_parser, common_defaults
 
@@ -82,7 +82,10 @@ def do_pssh(hosts, cmdline, opts):
             cmd.append(cmdline)
         t = Task(host, port, user, cmd, opts, stdin)
         manager.add_task(t)
-    manager.run()
+    try:
+        manager.run()
+    except FatalError:
+        sys.exit(1)
    
 if __name__ == "__main__":
     opts, args = parse_args()
