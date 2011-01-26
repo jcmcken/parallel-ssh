@@ -1,3 +1,7 @@
+2011-01-26 Andrew McNabb <amcnabb at mcnabbs.org>
+	* Version 2.2.1
+	  - Fixed a crash when the -l option was used in conjunction with a
+	    hosts file (issue #34).
 2011-01-21 Andrew McNabb <amcnabb at mcnabbs.org>
 	* Version 2.2
 	  - Added a basic man page for pssh (issue #10).
