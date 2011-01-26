@@ -16,7 +16,7 @@ def read_host_files(paths, default_user=None, default_port=None):
     hosts = []
     if paths:
         for path in paths:
-            hosts.extend(read_host_file(path))
+            hosts.extend(read_host_file(path, default_user=default_user))
     return hosts
 
 
