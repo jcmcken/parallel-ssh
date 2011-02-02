@@ -1,3 +1,7 @@
+2011-02-02 Andrew McNabb <amcnabb at mcnabbs.org>
+	* Version 2.2.2
+	  - Fixed two crashes (issues 35 and 36).  One affects Python <= 2.5
+	    and the other affects all of the scripts except pssh.
 2011-01-26 Andrew McNabb <amcnabb at mcnabbs.org>
 	* Version 2.2.1
 	  - Fixed a crash when the -l option was used in conjunction with a
