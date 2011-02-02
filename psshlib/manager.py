@@ -100,7 +100,8 @@ class Manager(object):
         # signal is ignored).
         signal.signal(signal.SIGCHLD, self.handle_sigchld)
         # This should keep reads and writes from getting EINTR.
-        signal.siginterrupt(signal.SIGCHLD, False)
+        if hasattr(signal, 'siginterrupt'):
+            signal.siginterrupt(signal.SIGCHLD, False)
 
     def handle_sigchld(self, number, frame):
         """Apparently we need a sigchld handler to make set_wakeup_fd work."""
