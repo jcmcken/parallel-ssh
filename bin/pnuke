@@ -17,7 +17,7 @@ if os.path.exists(os.path.join(parent, 'psshlib')):
 
 from psshlib import psshutil
 from psshlib.task import Task
-from psshlib.manager import Manager
+from psshlib.manager import Manager, FatalError
 from psshlib.cli import common_parser, common_defaults
 
 _DEFAULT_TIMEOUT = 60
