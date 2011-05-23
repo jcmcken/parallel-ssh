@@ -21,7 +21,7 @@ except NameError:
 
 class Task(object):
     """Starts a process and manages its input and output.
-    
+
     Upon completion, the `exitstatus` attribute is set to the exit status
     of the process.
     """
@@ -81,6 +81,8 @@ class Task(object):
         environ['SSH_ASKPASS'] = askpass_client.executable_path()
         if askpass_socket:
             environ['PSSH_ASKPASS_SOCKET'] = askpass_socket
+        if self.verbose:
+            environ['PSSH_ASKPASS_VERBOSE'] = '1'
         # Work around a mis-feature in ssh where it won't call SSH_ASKPASS
         # if DISPLAY is unset.
         if 'DISPLAY' not in environ:
