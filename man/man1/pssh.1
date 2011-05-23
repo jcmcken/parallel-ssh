@@ -242,7 +242,7 @@ Display output as it arrives.  This option is of limited usefulness because
 output from different hosts are interleaved.
 
 
-.SH EXAMPLE
+.SH EXAMPLES
 
 .PP
 Connect to host1 and host2, and print "hello, world" from each:
@@ -281,6 +281,22 @@ Run a command without checking or saving host keys:
 .RS
 pssh -i -H host1 -H host2 -x "-O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null -O GlobalKnownHostsFile=/dev/null" echo hi
 .RE
+
+.SH TIPS
+
+.PP
+If you have a set of hosts that you connect to frequently with specific
+options, it may be helpful to create an alias such as:
+.RS
+alias pssh_servers="pssh -h /path/to/server_list.txt -l root -A"
+.RE
+
+.PP
+The ssh_config file can include an arbitrary number of Host sections.  Each
+host entry specifies ssh options which apply only to the given host.  Host
+definitions can even behave like aliases if the HostName option is included.
+This ssh feature, in combination with pssh host files, provides a tremendous
+amount of flexibility.
 
 
 .SH EXIT STATUS VALUES
@@ -324,7 +340,8 @@ http://code.google.com/p/parallel-ssh/
 
 .SH SEE ALSO
 .BR ssh (1),
+.BR ssh_config(5),
 .BR pscp (1),
 .BR prsync (1),
 .BR pslurp (1),
-.BR pnuke (1)
+.BR pnuke (1),
