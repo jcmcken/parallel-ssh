@@ -63,6 +63,9 @@ is a program for executing ssh in parallel on a number of hosts.  It provides
 features such as sending input to all of the processes, passing a password
 to ssh, saving output to files, and timing out.
 
+The PSSH_NODENUM environment variable is set in the remote ssh environment.
+This variable is assigned a unique number for each ssh connection, starting
+with 0 and counting up.
 
 .SH OPTIONS
 
@@ -162,7 +165,7 @@ option.
 .TP
 .BI \-\-extra-args " args"
 Passes a extra SSH command-line arguments (see the
-.BR ssh (1) 
+.BR ssh (1)
 man page for more information about SSH arguments).
 This option may be specified multiple times.
 The arguments are processed to split on whitespace, protect text within
@@ -177,7 +180,7 @@ option instead.
 .TP
 .BI \-\-extra-arg " arg"
 Passes a single SSH command-line argument (see the
-.BR ssh (1) 
+.BR ssh (1)
 man page for more information about SSH arguments).  Unlike the
 .B \-x
 option, no processing is performed on the argument, including word splitting.
@@ -190,7 +193,7 @@ argument.
 .TP
 .BI \-\-options " options"
 SSH options in the format used in the SSH configuration file (see the
-.BR ssh_config (5) 
+.BR ssh_config (5)
 man page for more information).  This option may be specified multiple
 times.
 
@@ -282,6 +285,12 @@ Run a command without checking or saving host keys:
 pssh -i -H host1 -H host2 -x "-O StrictHostKeyChecking=no -O UserKnownHostsFile=/dev/null -O GlobalKnownHostsFile=/dev/null" echo hi
 .RE
 
+.PP
+Print the node number for each connection (this will print 0, 1, and 2):
+.RS
+pssh -i -H host1 -H host1 -H host2 'echo $PSSH_NODENUM'
+.RE
+
 .SH TIPS
 
 .PP
@@ -299,8 +308,10 @@ This ssh feature, in combination with pssh host files, provides a tremendous
 amount of flexibility.
 
 
-.SH EXIT STATUS VALUES
+.SH EXIT STATUS
+
 .PP
+The exit status codes from pssh are as follows:
 
 .TP
 .B 0
