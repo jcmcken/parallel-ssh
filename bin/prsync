@@ -69,7 +69,8 @@ def do_prsync(hosts, local, remote, opts):
     for host, port, user in hosts:
         ssh = ['ssh']
         if opts.options:
-            ssh += ['-o', opts.options]
+            for opt in opts.options:
+                ssh += ['-o', opt]
         if port:
             ssh += ['-p', port]
         if opts.ssh_args:
