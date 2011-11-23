@@ -1,4 +1,4 @@
-# Copyright (c) 2009, Andrew McNabb
+# Copyright (c) 2009-2011, Andrew McNabb
 # Copyright (c) 2003-2008, Brent N. Chun
 
 import optparse
@@ -6,6 +6,7 @@ import os
 import shlex
 import sys
 import textwrap
+import version
 
 _DEFAULT_PARALLELISM = 32
 _DEFAULT_TIMEOUT     = 0 # "infinity" by default
@@ -17,7 +18,8 @@ def common_parser():
     """
     # The "resolve" conflict handler avoids errors from the hosts option
     # conflicting with the help option.
-    parser = optparse.OptionParser(conflict_handler='resolve')
+    parser = optparse.OptionParser(conflict_handler='resolve',
+            version=version.VERSION)
     # Ensure that options appearing after the command are sent to ssh.
     parser.disable_interspersed_args()
     parser.epilog = "Example: pssh -h nodes.txt -l irb2 -o /tmp/foo uptime"
