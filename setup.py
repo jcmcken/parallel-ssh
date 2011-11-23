@@ -1,11 +1,12 @@
 from distutils.core import setup
 import os
+from psshlib import version
 
 long_description = """PSSH (Parallel SSH) provides parallel versions of OpenSSH and related tools, including pssh, pscp, prsync, pnuke, and pslurp.  The project includes psshlib which can be used within custom applications."""
 
 setup(
     name = "pssh",
-    version = "2.2.2",
+    version = version.VERSION,
     author = "Andrew McNabb",
     author_email = "amcnabb@mcnabbs.org",
     url = "http://code.google.com/p/parallel-ssh/",
