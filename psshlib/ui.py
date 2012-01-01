@@ -2,9 +2,11 @@
 import termios, fcntl, struct, sys
 from psshlib.color import r,y,c,g,m,B
 
-def print_summary(ssh_failed, cmd_failed, killed, succeeded):
+def print_summary(succeeded, ssh_failed, killed, cmd_failed=None): # cmd_failed is only for pssh
     total_succeeded = len(succeeded)
-    total_failures = len(ssh_failed) + len(cmd_failed) + len(killed)
+    total_failures = len(ssh_failed) + len(killed)
+    if cmd_failed is not None:
+        total_failures += len(cmd_failed)
     total = total_failures + total_succeeded
     print 
     print "Summary:"
@@ -15,11 +17,14 @@ def print_summary(ssh_failed, cmd_failed, killed, succeeded):
     )
     print
     print "Failure Breakdown:"
-    print "  [%s] %s / [%s] %s / [%s] %s" % (
-        B(str(len(ssh_failed))), B("SSH Failed"),
+    print "  [%s] %s / [%s] %s" % (
+        B(str(len(ssh_failed))), B("Connection Failed"),
         B(str(len(killed))), B("Tasks Killed"),
-        B(str(len(cmd_failed))), B("Tasks Failed")
-    )
+    ),
+    if cmd_failed is not None:
+        print "/ [%s] %s" % ( B(str(len(cmd_failed))), B("Tasks Failed") )
+    else:
+        print
     print
 
 
