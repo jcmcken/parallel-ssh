@@ -20,8 +20,9 @@ if os.path.exists(os.path.join(parent, 'psshlib')):
 
 from psshlib import psshutil
 from psshlib.task import Task
-from psshlib.manager import Manager, FatalError
+from psshlib.manager import ScpManager, FatalError
 from psshlib.cli import common_parser, common_defaults
+from psshlib.ui import print_summary
 
 def option_parser():
     parser = common_parser()
@@ -65,7 +66,7 @@ def do_prsync(hosts, local, remote, opts):
         os.makedirs(opts.outdir)
     if opts.errdir and not os.path.exists(opts.errdir):
         os.makedirs(opts.errdir)
-    manager = Manager(opts)
+    manager = ScpManager(opts)
     for host, port, user in hosts:
         ssh = ['ssh']
         if opts.options:
@@ -98,6 +99,9 @@ def do_prsync(hosts, local, remote, opts):
         statuses = manager.run()
     except FatalError:
         sys.exit(1)
+    
+    if opts.summary:
+        print_summary(manager.succeeded, manager.ssh_failed, manager.killed)
 
     if min(statuses) < 0:
         # At least one process was killed.
