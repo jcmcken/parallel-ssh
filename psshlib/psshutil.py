@@ -41,7 +41,7 @@ def read_host_file(path, default_user=None, default_port=None):
         host, port, user = parse_host_entry(line, default_user, default_port)
         if host:
             hosts.append((host, port, user))
-    return hosts
+    return list(set(hosts)) # uniquify host list
 
 
 # TODO: deprecate the second host field and standardize on the
