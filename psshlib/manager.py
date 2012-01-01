@@ -219,7 +219,7 @@ class ScpManager(Manager):
         for task in self.done:
             if task.exitstatus < 0:
                 self.killed.append(task)
-            elif task.exitstatus == 1:
+            elif task.exitstatus != 0:
                 self.ssh_failed.append(task)
             else:
                 self.succeeded.append(task)
