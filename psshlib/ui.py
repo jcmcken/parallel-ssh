@@ -1,5 +1,4 @@
 
-import termios, fcntl, struct, sys
 from psshlib.color import r,y,c,g,m,B
 
 def print_summary(succeeded, ssh_failed, killed, cmd_failed=None): # cmd_failed is only for pssh
