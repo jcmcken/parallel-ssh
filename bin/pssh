@@ -89,17 +89,7 @@ def do_pssh(hosts, cmdline, opts):
         sys.exit(1)
     
     if opts.summary:
-        ssh_failed, cmd_failed, killed, succeeded = [], [], [], []
-        for task in manager.done:
-            if task.exitstatus < 0:
-                killed.append(task)
-            elif task.exitstatus == 255:
-                ssh_failed.append(task)
-            elif task.exitstatus != 0:
-                cmd_failed.append(task)
-            else:
-                succeeded.append(task)
-        print_summary(ssh_failed, cmd_failed, killed, succeeded)
+        print_summary(manager.succeeded, manager.ssh_failed, manager.killed, manager.cmd_failed)
 
     if min(statuses) < 0:
         # At least one process was killed.

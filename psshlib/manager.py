@@ -46,6 +46,11 @@ class Manager(object):
         self.running = []
         self.done = []
 
+        self.succeeded = []
+        self.ssh_failed = []
+        self.cmd_failed = []
+        self.killed = []
+
         self.askpass_socket = None
 
     def run(self):
@@ -89,6 +94,15 @@ class Manager(object):
             writer.join()
 
         statuses = [task.exitstatus for task in self.done]
+        for task in self.done:
+            if task.exitstatus < 0:
+                self.killed.append(task)
+            elif task.exitstatus == 255:
+                self.ssh_failed.append(task)
+            elif task.exitstatus != 0:
+                self.cmd_failed.append(task)
+            else:
+                self.succeeded.append(task)
         return statuses
 
     def clear_sigchld_handler(self):
