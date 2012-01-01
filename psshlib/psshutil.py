@@ -34,10 +34,9 @@ def read_host_file(path, default_user=None, default_port=None):
 
     hosts = []
     for line in lines:
-        # Skip blank lines or lines starting with #
-        line = line.strip()
-        if not line or line.startswith('#'):
-            continue
+        # Pull out the non-commented portion of the line
+        # This allows entries with comments anywhere in the line
+        line = line.strip().split('#')[0]
         host, port, user = parse_host_entry(line, default_user, default_port)
         if host:
             hosts.append((host, port, user))
