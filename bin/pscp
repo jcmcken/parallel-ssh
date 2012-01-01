@@ -21,7 +21,7 @@ if os.path.exists(os.path.join(parent, 'psshlib')):
 
 from psshlib import psshutil
 from psshlib.task import Task
-from psshlib.manager import Manager, FatalError
+from psshlib.manager import ScpManager, FatalError
 from psshlib.cli import common_parser, common_defaults
 from psshlib.ui import print_summary
 
@@ -58,7 +58,7 @@ def do_pscp(hosts, localargs, remote, opts):
         os.makedirs(opts.outdir)
     if opts.errdir and not os.path.exists(opts.errdir):
         os.makedirs(opts.errdir)
-    manager = Manager(opts)
+    manager = ScpManager(opts)
     for host, port, user in hosts:
         cmd = ['scp', '-qC']
         if opts.options:
