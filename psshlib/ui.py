@@ -79,13 +79,13 @@ class ProgressBar(object):
         """ The ``length`` property is dynamic so that if user resizes terminal, 
         progress bar is also resized
         """
-        return get_window_width() - 24
+        return get_window_width() - 50
     def _get_bar(self):
         num_ticks = self._get_num_ticks()
         num_blanks = self.length - 2 - num_ticks
         bar = self.lcap + (self.fill * num_ticks) + (' ' * num_blanks) + self.rcap
-        bar = "%s%% %s %s" % (self._percent_to_s(), bar, self._get_fraction_done())
-        return bar.center(get_window_width())
+        bar = "[%s%%] %s [%s]" % (B(self._percent_to_s()), bar, B(self._get_fraction_done()))
+        return "  " + bar
     def _get_fraction_done(self):
         return "%s/%s" % ( str(self.current), str(self.total) )
     def _get_num_ticks(self):
@@ -95,6 +95,10 @@ class ProgressBar(object):
     def _percent_to_s(self):
         return "%.2f" % ( self._get_percent_done() * 100 )
     def tick(self, amount=1):
+        if self.current == 0:
+            print
+            print "Progress:"
+
         remaining = self.total - self.current
 
         if amount <= remaining:
@@ -106,8 +110,8 @@ class ProgressBar(object):
         sys.stdout.write('\r' + self._get_bar()) # now write the progress bar
         sys.stdout.flush()
         
-        if remaining == 0:
-            print
+        if self.current == self.total:
+            print 
 
     def clear_line(self):
         sys.stdout.write('\r' + get_window_width() * ' ' + '\r')
