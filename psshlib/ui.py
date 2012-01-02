@@ -67,6 +67,9 @@ def get_window_width():
 def get_window_height():
     return get_window_size()[0]
 
+def clear_line():
+    sys.stdout.write('\r' + get_window_width() * ' ' + '\r')
+
 class ProgressBar(object):
     def __init__(self, total, lcap='[', rcap=']', fill='#'):
         self.total = total
@@ -106,17 +109,9 @@ class ProgressBar(object):
         else:
             self.current += remaining
         
-        self.clear_line()
+        clear_line()
         sys.stdout.write('\r' + self._get_bar()) # now write the progress bar
         sys.stdout.flush()
         
         if self.current == self.total:
             print 
-
-    def clear_line(self):
-        sys.stdout.write('\r' + get_window_width() * ' ' + '\r')
-
-        
-    
-
-        
