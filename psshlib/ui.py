@@ -66,3 +66,31 @@ def get_window_width():
 
 def get_window_height():
     return get_window_size()[0]
+
+class ProgressBar(object):
+    def __init__(self, total, length=get_window_width() - 12, lcap='[', rcap=']', fill='='):
+        self.total = total
+        self.current = 0
+        self.length = length
+        self.lcap = lcap
+        self.rcap = rcap
+        self.fill = fill
+    def _get_bar(self):
+        num_ticks = self._get_num_ticks()
+        num_blanks = self.length - 2 - num_ticks
+        bar = self.lcap + (self.fill * num_ticks) + (' ' * num_blanks) + self.rcap
+        return bar.center(get_window_width())
+    def _get_num_ticks(self):
+        return int(round(( float(self.current)/self.total ) * (self.length - 2)))
+    def tick(self, amount=1):
+        remaining = self.total - self.current
+        if amount < remaining:
+            self.current += amount
+        else: 
+            self.current += remaining
+        sys.stdout.write('\r' + self._get_bar())
+        sys.stdout.flush()
+        
+    
+
+        
