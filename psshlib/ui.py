@@ -1,30 +1,32 @@
 
 from psshlib.color import r,y,c,g,m,B
 
-def print_summary(succeeded, ssh_failed, killed, cmd_failed=None): # cmd_failed is only for pssh
+def print_summary(succeeded, ssh_failed, killed, cmd_failed=[]): # cmd_failed is only for pssh
     total_succeeded = len(succeeded)
-    total_failures = len(ssh_failed) + len(killed)
-    if cmd_failed is not None:
-        total_failures += len(cmd_failed)
+    total_failures = len(ssh_failed) + len(killed) + len(cmd_failed)
     total = total_failures + total_succeeded
+
+    summary_data = (
+        ('Total', total),
+        ('Failed', r(str(total_failures))),
+        ('Succeeded', g(str(total_succeeded)))
+    )
+
+    failure_data = (
+        ('Connections Failed', len(ssh_failed)),
+        ('Tasks Killed', len(killed)),
+        ('Tasks Failed', len(cmd_failed))
+    )
     print 
     print "Summary:"
-    print "  [%s] %s / [%s] %s / [%s] %s" % (
-        B(str(total)), B("Total"),
-        B(r(str(total_failures))), B("Failed"),
-        B(g(str(total_succeeded))), B("Succeeded")
-    )
+    print "  " + format_summary(summary_data)
     print
     print "Failure Breakdown:"
-    print "  [%s] %s / [%s] %s" % (
-        B(str(len(ssh_failed))), B("Connection Failed"),
-        B(str(len(killed))), B("Tasks Killed"),
-    ),
-    if cmd_failed is not None:
-        print "/ [%s] %s" % ( B(str(len(cmd_failed))), B("Tasks Failed") )
-    else:
-        print
+    print "  " + format_summary(failure_data)
     print
 
-
-    
+def format_summary(data):
+    keys, values = zip( *[ i for i in data if i[1] != 0 ] ) # filter out zero-data entries
+    keys = map(B, keys)
+    values = map(B, map(str, values))
+    return " / ".join([ "[%s] %s" % (i[1], i[0]) for i in zip(keys, values) ])
