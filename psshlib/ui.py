@@ -1,6 +1,7 @@
 
 from psshlib.color import r,y,c,g,m,B,has_colors
-import time, sys
+from psshlib.psshutil import get_timestamp
+import sys
 
 def print_summary(succeeded, ssh_failed, killed, cmd_failed=[]): # cmd_failed is only for pssh
     total_succeeded = len(succeeded)
@@ -31,9 +32,6 @@ def format_summary(data):
     keys = map(B, keys)
     values = map(B, map(str, values))
     return " / ".join([ "[%s] %s" % (i[1], i[0]) for i in zip(keys, values) ])
-
-def get_timestamp():
-    return time.asctime().split()[3]
 
 def print_task_report(task):
     sequence = task.sequence

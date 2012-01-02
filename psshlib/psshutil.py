@@ -4,6 +4,7 @@
 import fcntl
 import string
 import sys
+import time
 
 HOST_FORMAT = 'Host format is [user@]host[:port] [user]'
 
@@ -106,3 +107,6 @@ def set_cloexec(filelike):
     not require the close_fds option.
     """
     fcntl.fcntl(filelike.fileno(), fcntl.FD_CLOEXEC, 1)
+
+def get_timestamp():
+    return time.asctime().split()[3]
