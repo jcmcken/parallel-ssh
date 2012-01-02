@@ -14,6 +14,7 @@ except ImportError:
 
 from psshlib.askpass_server import PasswordServer
 from psshlib import psshutil
+from psshlib.ui import ProgressBar
 
 READ_SIZE = 1 << 16
 
@@ -53,7 +54,10 @@ class Manager(object):
 
         self.askpass_socket = None
 
-        self.progress_bar = opts.progress_bar
+        if opts.progress_bar:
+            self.progress_bar = ProgressBar(len(self.tasks))
+        else:
+            self.progress_bar = None
 
     def run(self):
         """Processes tasks previously added with add_task."""
