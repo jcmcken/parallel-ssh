@@ -211,8 +211,8 @@ class Manager(object):
     def finished(self, task):
         """Marks a task as complete and reports its status to stdout."""
         self.done.append(task)
-        n = len(self.done)
-        task.report(n)
+        task.sequence = len(self.done)
+        task.report()
 
 class ScpManager(Manager):
     def tally_results(self):
