@@ -53,6 +53,8 @@ class Manager(object):
 
         self.askpass_socket = None
 
+        self.progress_bar = opts.progress_bar
+
     def run(self):
         """Processes tasks previously added with add_task."""
         try:

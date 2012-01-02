@@ -32,6 +32,8 @@ def common_parser():
             help='additional host entries ("[user@]host[:port]")')
     parser.add_option('-s', '--summary', dest='summary', action='store_true',
             help='print a summary of successes and failures')
+    parser.add_option('-B', '--progress-bar', dest='progress_bar', action='store_true',
+            help="instead of printing each task's status message, just print a progress bar")
     parser.add_option('-l', '--user', dest='user',
             help='username (OPTIONAL)')
     parser.add_option('-p', '--par', dest='par', type='int',
