@@ -54,13 +54,17 @@ class Manager(object):
 
         self.askpass_socket = None
 
-        if opts.progress_bar:
+        self.progress_bar = opts.progress_bar
+    
+    def _setup_progress_bar(self):
+        """ This should be called after ``self.tasks`` is populated
+        """
+        if self.progress_bar:
             self.progress_bar = ProgressBar(len(self.tasks))
-        else:
-            self.progress_bar = None
 
     def run(self):
         """Processes tasks previously added with add_task."""
+        self._setup_progress_bar()
         try:
             if self.outdir or self.errdir:
                 writer = Writer(self.outdir, self.errdir)
@@ -218,7 +222,10 @@ class Manager(object):
         """Marks a task as complete and reports its status to stdout."""
         self.done.append(task)
         task.sequence = len(self.done)
-        task.report()
+        if self.progress_bar:
+            self.progress_bar.tick()
+        else:
+            task.report()
 
 class ScpManager(Manager):
     def tally_results(self):
