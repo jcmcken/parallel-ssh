@@ -1,6 +1,7 @@
 
 from psshlib.color import r,y,c,g,m,B,has_colors
 from psshlib.psshutil import get_timestamp
+import termios, fcntl, struct, sys
 import sys
 
 def print_summary(succeeded, ssh_failed, killed, cmd_failed=[]): # cmd_failed is only for pssh
@@ -52,3 +53,16 @@ def print_task_report(task):
     else:
         status = success
     print(' '.join((sequence, get_timestamp(), status, task.pretty_host, errors)))
+
+
+def get_window_size():
+    s = struct.pack("HHHH", 0, 0, 0, 0)
+    fd_stdout = sys.stdout.fileno()
+    size = fcntl.ioctl(fd_stdout, termios.TIOCGWINSZ, s)
+    return struct.unpack("HHHH", size)[0:2]
+
+def get_window_width():
+    return get_window_size()[1]
+
+def get_window_height():
+    return get_window_size()[0]
