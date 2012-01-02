@@ -10,6 +10,7 @@ import traceback
 
 from psshlib import askpass_client
 from psshlib import color
+from psshlib.ui import print_task_report
 
 BUFFER_SIZE = 1 << 16
 
@@ -64,6 +65,8 @@ class Task(object):
             self.inline = bool(opts.inline)
         except AttributeError:
             self.inline = False
+
+        self.sequence = None
 
     def start(self, nodenum, iomap, writer, askpass_socket=None):
         """Starts the process and registers files with the IOMap."""
@@ -243,26 +246,9 @@ class Task(object):
             exc = str(e)
         self.failures.append(exc)
 
-    def report(self, n):
+    def report(self):
         """Pretty prints a status report after the Task completes."""
-        error = ', '.join(self.failures)
-        tstamp = time.asctime().split()[3] # Current time
-        if color.has_colors(sys.stdout):
-            progress = color.c("[%s]" % color.B(n))
-            success = color.g("[%s]" % color.B("SUCCESS"))
-            failure = color.r("[%s]" % color.B("FAILURE"))
-            stderr = color.r("Stderr: ")
-            error = color.r(color.B(error))
-        else:
-            progress = "[%s]" % n
-            success = "[SUCCESS]"
-            failure = "[FAILURE]"
-            stderr = "Stderr: "
-        host = self.pretty_host
-        if self.failures:
-            print(' '.join((progress, tstamp, failure, host, error)))
-        else:
-            print(' '.join((progress, tstamp, success, host)))
+        print_task_report(self)
         # NOTE: The extra flushes are to ensure that the data is output in
         # the correct order with the C implementation of io.
         if self.outputbuffer:

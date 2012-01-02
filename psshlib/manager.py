@@ -46,6 +46,11 @@ class Manager(object):
         self.running = []
         self.done = []
 
+        self.succeeded = []
+        self.ssh_failed = []
+        self.cmd_failed = []
+        self.killed = []
+
         self.askpass_socket = None
 
     def run(self):
@@ -89,7 +94,19 @@ class Manager(object):
             writer.join()
 
         statuses = [task.exitstatus for task in self.done]
+        self.tally_results()
         return statuses
+
+    def tally_results(self):
+        for task in self.done:
+            if task.exitstatus < 0:
+                self.killed.append(task)
+            elif task.exitstatus == 255:
+                self.ssh_failed.append(task)
+            elif task.exitstatus != 0:
+                self.cmd_failed.append(task)
+            else:
+                self.succeeded.append(task)
 
     def clear_sigchld_handler(self):
         signal.signal(signal.SIGCHLD, signal.SIG_DFL)
@@ -194,8 +211,18 @@ class Manager(object):
     def finished(self, task):
         """Marks a task as complete and reports its status to stdout."""
         self.done.append(task)
-        n = len(self.done)
-        task.report(n)
+        task.sequence = len(self.done)
+        task.report()
+
+class ScpManager(Manager):
+    def tally_results(self):
+        for task in self.done:
+            if task.exitstatus < 0:
+                self.killed.append(task)
+            elif task.exitstatus != 0:
+                self.ssh_failed.append(task)
+            else:
+                self.succeeded.append(task)
 
 
 class IOMap(object):

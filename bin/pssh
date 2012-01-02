@@ -24,6 +24,7 @@ from psshlib import psshutil
 from psshlib.manager import Manager, FatalError
 from psshlib.task import Task
 from psshlib.cli import common_parser, common_defaults
+from psshlib.ui import print_summary
 
 _DEFAULT_TIMEOUT = 60
 
@@ -86,6 +87,9 @@ def do_pssh(hosts, cmdline, opts):
         statuses = manager.run()
     except FatalError:
         sys.exit(1)
+    
+    if opts.summary:
+        print_summary(manager.succeeded, manager.ssh_failed, manager.killed, manager.cmd_failed)
 
     if min(statuses) < 0:
         # At least one process was killed.
