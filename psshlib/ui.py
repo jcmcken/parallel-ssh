@@ -68,28 +68,50 @@ def get_window_height():
     return get_window_size()[0]
 
 class ProgressBar(object):
-    def __init__(self, total, length=get_window_width() - 12, lcap='[', rcap=']', fill='='):
+    def __init__(self, total, lcap='[', rcap=']', fill='#'):
         self.total = total
         self.current = 0
-        self.length = length
         self.lcap = lcap
         self.rcap = rcap
         self.fill = fill
+    @property
+    def length(self):
+        """ The ``length`` property is dynamic so that if user resizes terminal, 
+        progress bar is also resized
+        """
+        return get_window_width() - 24
     def _get_bar(self):
         num_ticks = self._get_num_ticks()
         num_blanks = self.length - 2 - num_ticks
         bar = self.lcap + (self.fill * num_ticks) + (' ' * num_blanks) + self.rcap
+        bar = "%s%% %s %s" % (self._percent_to_s(), bar, self._get_fraction_done())
         return bar.center(get_window_width())
+    def _get_fraction_done(self):
+        return "%s/%s" % ( str(self.current), str(self.total) )
     def _get_num_ticks(self):
-        return int(round(( float(self.current)/self.total ) * (self.length - 2)))
+        return int(round(self._get_percent_done() * (self.length - 2)))
+    def _get_percent_done(self):
+        return float(self.current)/self.total
+    def _percent_to_s(self):
+        return "%.2f" % ( self._get_percent_done() * 100 )
     def tick(self, amount=1):
         remaining = self.total - self.current
-        if amount < remaining:
+
+        if amount <= remaining:
             self.current += amount
-        else: 
+        else:
             self.current += remaining
-        sys.stdout.write('\r' + self._get_bar())
+        
+        self.clear_line()
+        sys.stdout.write('\r' + self._get_bar()) # now write the progress bar
         sys.stdout.flush()
+        
+        if remaining == 0:
+            print
+
+    def clear_line(self):
+        sys.stdout.write('\r' + get_window_width() * ' ' + '\r')
+
         
     
 
