@@ -15,14 +15,9 @@ except ImportError:
 from psshlib.askpass_server import PasswordServer
 from psshlib import psshutil
 from psshlib.ui import ProgressBar
+from psshlib.exceptions import FatalError
 
 READ_SIZE = 1 << 16
-
-
-class FatalError(RuntimeError):
-    """A fatal error in the PSSH Manager."""
-    pass
-
 
 class Manager(object):
     """Executes tasks concurrently.

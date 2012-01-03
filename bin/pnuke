@@ -17,7 +17,8 @@ if os.path.exists(os.path.join(parent, 'psshlib')):
 
 from psshlib import psshutil
 from psshlib.task import Task
-from psshlib.manager import Manager, FatalError
+from psshlib.manager import Manager
+from psshlib.exceptions import FatalError
 from psshlib.cli import common_parser, common_defaults
 from psshlib.ui import print_summary
 

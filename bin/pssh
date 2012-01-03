@@ -21,7 +21,8 @@ if os.path.exists(os.path.join(parent, 'psshlib')):
     sys.path.insert(0, parent)
 
 from psshlib import psshutil
-from psshlib.manager import Manager, FatalError
+from psshlib.manager import Manager
+from psshlib.exceptions import FatalError
 from psshlib.task import Task
 from psshlib.cli import common_parser, common_defaults
 from psshlib.ui import print_summary
