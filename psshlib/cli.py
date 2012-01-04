@@ -56,6 +56,8 @@ def common_parser():
             'spaces, quotes, and backslashes')
     parser.add_option('-X', '--extra-arg', dest='extra', action='append',
             metavar='ARG', help='Extra command-line argument')
+    parser.add_option('-T', '--test', type='int', dest='test_cases',
+            help="run against specified number of servers, then stop and ask if it's OK to continue")
 
     return parser
 
