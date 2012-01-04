@@ -6,6 +6,8 @@ import string
 import sys
 import time
 
+from psshlib.exceptions import FatalError
+
 HOST_FORMAT = 'Host format is [user@]host[:port] [user]'
 
 
@@ -109,3 +111,11 @@ def set_cloexec(filelike):
 
 def get_timestamp():
     return time.asctime().split()[3]
+
+def run_manager(manager):
+    try:
+       statuses = manager.run()
+    except FatalError:
+       sys.exit(1)
+    return statuses
+    
