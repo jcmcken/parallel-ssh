@@ -54,6 +54,24 @@ def print_task_report(task):
         status = success
     print(' '.join((sequence, get_timestamp(), status, task.pretty_host, errors)))
 
+    # NOTE: The extra flushes are to ensure that the data is output in
+    # the correct order with the C implementation of io.
+    if task.outputbuffer:
+        sys.stdout.flush()
+        try:
+            sys.stdout.buffer.write(task.outputbuffer)
+            sys.stdout.flush()
+        except AttributeError:
+            sys.stdout.write(task.outputbuffer)
+    if task.errorbuffer:
+        sys.stdout.write(stderr)
+        # Flush the TextIOWrapper before writing to the binary buffer.
+        sys.stdout.flush()
+        try:
+            sys.stdout.buffer.write(task.errorbuffer)
+        except AttributeError:
+            sys.stdout.write(task.errorbuffer)
+
 
 def get_window_size():
     s = struct.pack("HHHH", 0, 0, 0, 0)
@@ -69,6 +87,9 @@ def get_window_height():
 
 def clear_line():
     sys.stdout.write('\r' + get_window_width() * ' ' + '\r')
+
+def ask_yes_or_no(question):
+    return raw_input("%s? [y/N]: " % question)
 
 class ProgressBar(object):
     def __init__(self, total, lcap='[', rcap=']', fill='#'):

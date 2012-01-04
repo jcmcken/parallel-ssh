@@ -14,7 +14,8 @@ except ImportError:
 
 from psshlib.askpass_server import PasswordServer
 from psshlib import psshutil
-from psshlib.ui import ProgressBar
+from psshlib.ui import ProgressBar, ask_yes_or_no, clear_line, print_task_report
+from psshlib.exceptions import FatalError
 
 READ_SIZE = 1 << 16
 
@@ -225,7 +226,7 @@ class Manager(object):
         if self.progress_bar:
             self.progress_bar.tick()
         else:
-            task.report()
+            print_task_report(task)
 
 class ScpManager(Manager):
     def tally_results(self):
