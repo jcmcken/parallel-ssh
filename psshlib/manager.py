@@ -76,11 +76,7 @@ class Manager(object):
             else:
                 writer = None
 
-            if self.askpass:
-                pass_server = PasswordServer()
-                pass_server.start(self.iomap, self.limit)
-                self.askpass_socket = pass_server.address
-
+            self._acquire_password()
             self.set_sigchld_handler()
 
             try:
@@ -107,9 +103,11 @@ class Manager(object):
             writer.signal_quit()
             writer.join()
 
-        statuses = [task.exitstatus for task in self.done]
-        self.tally_results()
-        return statuses
+    def _acquire_password(self):
+        if self.askpass:
+            pass_server = PasswordServer()
+            pass_server.start(self.iomap, self.limit)
+            self.askpass_socket = pass_server.address
 
     def tally_results(self):
         for task in self.done:
