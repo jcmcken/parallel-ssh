@@ -1,6 +1,7 @@
 # Copyright (c) 2009, Andrew McNabb
 
 from errno import EINTR
+from copy import deepcopy
 import os
 import select
 import signal
@@ -14,7 +15,7 @@ except ImportError:
 
 from psshlib.askpass_server import PasswordServer
 from psshlib import psshutil
-from psshlib.ui import ProgressBar
+from psshlib.ui import ProgressBar, ask_yes_or_no, clear_line, print_task_report
 from psshlib.exceptions import FatalError
 
 READ_SIZE = 1 << 16
@@ -30,6 +31,8 @@ class Manager(object):
         timeout: Maximum allowed execution time in seconds.
     """
     def __init__(self, opts):
+        self.opts = opts
+
         self.limit = opts.par
         self.timeout = opts.timeout
         self.askpass = opts.askpass
@@ -50,6 +53,7 @@ class Manager(object):
         self.askpass_socket = None
 
         self.progress_bar = opts.progress_bar
+        self.test_cases = opts.test_cases
     
     def _setup_progress_bar(self):
         """ This should be called after ``self.tasks`` is populated
@@ -57,9 +61,45 @@ class Manager(object):
         if self.progress_bar:
             self.progress_bar = ProgressBar(len(self.tasks))
 
+    def _split_manager(self):
+        # set up the test manager and add first n tasks
+        new_opts = deepcopy(self.opts) 
+        new_opts.__dict__['test_cases'] = None # remove test_cases option, or there'll be a recursion error
+        test_man = self.__class__(new_opts)
+        map(test_man.add_task, self.tasks[slice(0, self.test_cases)])
+        psshutil.run_manager(test_man)
+        test_man.tally_results()
+
+        print
+        while True:
+            answer = ask_yes_or_no("Paused run. OK to continue").lower()
+            if answer == 'y':
+                break
+            elif answer == 'n':
+                sys.exit(0)
+        print
+
+        finish_man = self.__class__(new_opts)
+        # add remaining tasks
+        map(finish_man.add_task, self.tasks[slice(self.test_cases, None)])
+        psshutil.run_manager(finish_man)
+        
+        return test_man, finish_man
+
     def run(self):
         """Processes tasks previously added with add_task."""
         self._setup_progress_bar()
+        if self.test_cases:
+            man1, man2 = self._split_manager()
+            self.done = man1.done + man2.done
+        else:
+            self._run()    
+
+        statuses = [task.exitstatus for task in self.done]
+        self.tally_results()
+        return statuses
+    
+    def _run(self):
         try:
             if self.outdir or self.errdir:
                 writer = Writer(self.outdir, self.errdir)
@@ -67,11 +107,7 @@ class Manager(object):
             else:
                 writer = None
 
-            if self.askpass:
-                pass_server = PasswordServer()
-                pass_server.start(self.iomap, self.limit)
-                self.askpass_socket = pass_server.address
-
+            self._acquire_password()
             self.set_sigchld_handler()
 
             try:
@@ -98,9 +134,11 @@ class Manager(object):
             writer.signal_quit()
             writer.join()
 
-        statuses = [task.exitstatus for task in self.done]
-        self.tally_results()
-        return statuses
+    def _acquire_password(self):
+        if self.askpass:
+            pass_server = PasswordServer()
+            pass_server.start(self.iomap, self.limit)
+            self.askpass_socket = pass_server.address
 
     def tally_results(self):
         for task in self.done:
@@ -220,7 +258,7 @@ class Manager(object):
         if self.progress_bar:
             self.progress_bar.tick()
         else:
-            task.report()
+            print_task_report(task)
 
 class ScpManager(Manager):
     def tally_results(self):

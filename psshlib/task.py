@@ -10,7 +10,6 @@ import traceback
 
 from psshlib import askpass_client
 from psshlib import color
-from psshlib.ui import print_task_report
 
 BUFFER_SIZE = 1 << 16
 
@@ -245,25 +244,3 @@ class Task(object):
         else:
             exc = str(e)
         self.failures.append(exc)
-
-    def report(self):
-        """Pretty prints a status report after the Task completes."""
-        print_task_report(self)
-        # NOTE: The extra flushes are to ensure that the data is output in
-        # the correct order with the C implementation of io.
-        if self.outputbuffer:
-            sys.stdout.flush()
-            try:
-                sys.stdout.buffer.write(self.outputbuffer)
-                sys.stdout.flush()
-            except AttributeError:
-                sys.stdout.write(self.outputbuffer)
-        if self.errorbuffer:
-            sys.stdout.write(stderr)
-            # Flush the TextIOWrapper before writing to the binary buffer.
-            sys.stdout.flush()
-            try:
-                sys.stdout.buffer.write(self.errorbuffer)
-            except AttributeError:
-                sys.stdout.write(self.errorbuffer)
-
