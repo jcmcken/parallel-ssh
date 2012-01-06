@@ -58,6 +58,7 @@ class Manager(object):
         self.askpass_socket = None
 
         self.progress_bar = opts.progress_bar
+        self.test_cases = opts.test_cases
     
     def _setup_progress_bar(self):
         """ This should be called after ``self.tasks`` is populated
