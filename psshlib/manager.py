@@ -1,6 +1,7 @@
 # Copyright (c) 2009, Andrew McNabb
 
 from errno import EINTR
+from copy import deepcopy
 import os
 import select
 import signal
@@ -66,9 +67,45 @@ class Manager(object):
         if self.progress_bar:
             self.progress_bar = ProgressBar(len(self.tasks))
 
+    def _split_manager(self):
+        # set up the test manager and add first n tasks
+        new_opts = deepcopy(self.opts) 
+        new_opts.__dict__['test_cases'] = None # remove test_cases option, or there'll be a recursion error
+        test_man = self.__class__(new_opts)
+        map(test_man.add_task, self.tasks[slice(0, self.test_cases)])
+        psshutil.run_manager(test_man)
+        test_man.tally_results()
+
+        print
+        while True:
+            answer = ask_yes_or_no("Paused run. OK to continue").lower()
+            if answer == 'y':
+                break
+            elif answer == 'n':
+                sys.exit(0)
+        print
+
+        finish_man = self.__class__(new_opts)
+        # add remaining tasks
+        map(finish_man.add_task, self.tasks[slice(self.test_cases, None)])
+        psshutil.run_manager(finish_man)
+        
+        return test_man, finish_man
+
     def run(self):
         """Processes tasks previously added with add_task."""
         self._setup_progress_bar()
+        if self.test_cases:
+            man1, man2 = self._split_manager()
+            self.done = man1.done + man2.done
+        else:
+            self._run()    
+
+        statuses = [task.exitstatus for task in self.done]
+        self.tally_results()
+        return statuses
+    
+    def _run(self):
         try:
             if self.outdir or self.errdir:
                 writer = Writer(self.outdir, self.errdir)
