@@ -36,6 +36,8 @@ class Manager(object):
         timeout: Maximum allowed execution time in seconds.
     """
     def __init__(self, opts):
+        self.opts = opts
+
         self.limit = opts.par
         self.timeout = opts.timeout
         self.askpass = opts.askpass
