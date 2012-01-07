@@ -1,6 +1,7 @@
 import sys
 import psshutil
 import random
+import re
 
 class ServerPool(list):
     def __init__(self, options):
@@ -14,6 +15,16 @@ class ServerPool(list):
         if options.host_strings:
             for s in options.host_strings:
                 hosts.extend(psshutil.parse_host_string(s, default_user=options.user))
+        
+        regexp = options.host_regexp
+        if regexp:
+            compiled = re.compile(regexp)
+            hosts = [ i for i in hosts if compiled.match(i[0]) ]
+            
+            if not hosts:
+                sys.stderr.write('No hosts matched supplied regular expression\n')
+                sys.exit(1)
+
         sample_size = options.sample_size
         if sample_size:
             if sample_size <= 0:
@@ -23,4 +34,5 @@ class ServerPool(list):
                 sys.stderr.write('Sample size larger than population\n')
                 sys.exit(1)
             hosts = random.sample(hosts, sample_size)
+
         super(ServerPool, self).__init__(hosts)
