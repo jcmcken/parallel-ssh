@@ -101,10 +101,8 @@ def do_prsync(hosts, local, remote, opts):
             cmd.append('%s:%s' % (host, remote))
         t = Task(host, port, user, cmd, opts)
         manager.add_task(t)
-    try:
-        statuses = manager.run()
-    except FatalError:
-        sys.exit(1)
+
+    statuses = psshutil.run_manager(manager)
     
     if min(statuses) < 0:
         # At least one process was killed.
