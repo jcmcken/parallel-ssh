@@ -1,5 +1,6 @@
 import sys
 import psshutil
+import random
 
 class ServerPool(list):
     def __init__(self, options):
@@ -13,4 +14,13 @@ class ServerPool(list):
         if options.host_strings:
             for s in options.host_strings:
                 hosts.extend(psshutil.parse_host_string(s, default_user=options.user))
+        sample_size = options.sample_size
+        if sample_size:
+            if sample_size <= 0:
+                sys.stderr.write('Sample size cannot be negative')
+                sys.exit(1)
+            elif sample_size > len(hosts):
+                sys.stderr.write('Sample size larger than population')
+                sys.exit(1)
+            hosts = random.sample(hosts, sample_size)
         super(ServerPool, self).__init__(hosts)
