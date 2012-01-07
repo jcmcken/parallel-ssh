@@ -17,10 +17,10 @@ class ServerPool(list):
         sample_size = options.sample_size
         if sample_size:
             if sample_size <= 0:
-                sys.stderr.write('Sample size cannot be negative')
+                sys.stderr.write('Sample size cannot be negative\n')
                 sys.exit(1)
             elif sample_size > len(hosts):
-                sys.stderr.write('Sample size larger than population')
+                sys.stderr.write('Sample size larger than population\n')
                 sys.exit(1)
             hosts = random.sample(hosts, sample_size)
         super(ServerPool, self).__init__(hosts)
