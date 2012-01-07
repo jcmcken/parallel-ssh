@@ -61,7 +61,8 @@ def common_parser():
     parser.add_option('--sample-size', type='int',
             help="choose SAMPLE_SIZE hosts at random and only run against the sample")
     parser.add_option('--host-regexp',
-            help="only run against hosts that match HOST_REGEXP")
+            help="only run against hosts that match HOST_REGEXP. If used with --sample-size, "
+                 "this filter is run first.")
 
     return parser
 
