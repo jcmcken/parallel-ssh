@@ -15,7 +15,7 @@ except ImportError:
 
 from psshlib.askpass_server import PasswordServer
 from psshlib import psshutil
-from psshlib.ui import ProgressBar, ask_yes_or_no, clear_line, print_task_report
+from psshlib.ui import ProgressBar, ask_yes_or_no, clear_line, print_task_report, print_summary
 from psshlib.exceptions import FatalError
 
 READ_SIZE = 1 << 16
@@ -95,9 +95,12 @@ class Manager(object):
         else:
             self._run()    
 
-        statuses = [task.exitstatus for task in self.done]
         self.tally_results()
-        return statuses
+
+        if self.opts.summary:
+            print_summary(self.succeeded, self.ssh_failed, self.killed, self.cmd_failed)
+
+        return [task.exitstatus for task in self.done]
     
     def _run(self):
         try:

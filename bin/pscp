@@ -24,7 +24,6 @@ from psshlib.task import Task
 from psshlib.manager import ScpManager
 from psshlib.exceptions import FatalError
 from psshlib.cli import common_parser, common_defaults
-from psshlib.ui import print_summary
 from psshlib.hosts import ServerPool
 
 def option_parser():
@@ -83,9 +82,6 @@ def do_pscp(hosts, localargs, remote, opts):
         statuses = manager.run()
     except FatalError:
         sys.exit(1)
-    
-    if opts.summary:
-        print_summary(manager.succeeded, manager.ssh_failed, manager.killed)
 
     if min(statuses) < 0:
         # At least one process was killed.
