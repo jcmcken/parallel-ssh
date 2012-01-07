@@ -14,6 +14,7 @@ outdir/<node>/local.  This program also uses the -q (quiet) and -C
 import os
 import re
 import sys
+import optparse
     
 parent, bindir = os.path.split(os.path.dirname(os.path.abspath(sys.argv[0])))
 if os.path.exists(os.path.join(parent, 'psshlib')):
@@ -31,11 +32,16 @@ def option_parser():
     parser.usage = "%prog [OPTIONS] -h hosts.txt remote local"
     parser.epilog = ("Example: pslurp -h hosts.txt -L /tmp/outdir -l irb2 " +
             "         /home/irb2/foo.txt foo.txt")
+    scp_group = optparse.OptionGroup(parser, 'SCP Options',
+            "Options specific to SCP")
 
-    parser.add_option('-r', '--recursive', dest='recursive',
+    scp_group.add_option('-r', '--recursive', dest='recursive',
             action='store_true', help='recusively copy directories (OPTIONAL)')
-    parser.add_option('-L', '--localdir', dest='localdir',
+    scp_group.add_option('-L', '--localdir', dest='localdir',
             help='output directory for remote file copies')
+    
+    parser.add_option_group(scp_group)
+    parser.group_map['scp_group'] = scp_group
 
     return parser
 

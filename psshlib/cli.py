@@ -24,45 +24,62 @@ def common_parser():
     parser.disable_interspersed_args()
     parser.epilog = "Example: pssh -h nodes.txt -l irb2 -o /tmp/foo uptime"
 
-    parser.add_option('-h', '--hosts', dest='host_files', action='append',
+    filter_group = optparse.OptionGroup(parser, "Host Filters",
+            "Winnow down a large pool of hosts")
+    filter_group.add_option('--sample-size', type='int',
+            help="choose SAMPLE_SIZE hosts at random and only run against the sample")
+    filter_group.add_option('--host-regexp',
+            help="only run against hosts that match HOST_REGEXP. If used with --sample-size, "
+                 "this filter is run first.")
+
+    output_group = optparse.OptionGroup(parser, "Output Options",
+            "Customize how session output is handled")
+    output_group.add_option('-s', '--summary', dest='summary', action='store_true',
+            help='print a summary of successes and failures')
+    output_group.add_option('-B', '--progress-bar', dest='progress_bar', action='store_true',
+            help="instead of printing each task's status message, just print a progress bar")
+    output_group.add_option('-v', '--verbose', dest='verbose', action='store_true',
+            help='turn on warning and diagnostic messages (OPTIONAL)')
+    output_group.add_option('-o', '--outdir', dest='outdir',
+            help='output directory for stdout files (OPTIONAL)')
+    output_group.add_option('-e', '--errdir', dest='errdir',
+            help='output directory for stderr files (OPTIONAL)')
+
+    connection_group = optparse.OptionGroup(parser, "Connection Options",
+            "Customize the destination, authentication, pooling, timing, and "
+            "configuration of connections")
+    connection_group.add_option('-h', '--hosts', dest='host_files', action='append',
             metavar='HOST_FILE',
             help='hosts file (each line "[user@]host[:port]")')
-    parser.add_option('-H', '--host', dest='host_strings', action='append',
+    connection_group.add_option('-H', '--host', dest='host_strings', action='append',
             metavar='HOST_STRING',
             help='additional host entries ("[user@]host[:port]")')
-    parser.add_option('-s', '--summary', dest='summary', action='store_true',
-            help='print a summary of successes and failures')
-    parser.add_option('-B', '--progress-bar', dest='progress_bar', action='store_true',
-            help="instead of printing each task's status message, just print a progress bar")
-    parser.add_option('-l', '--user', dest='user',
+    connection_group.add_option('-l', '--user', dest='user',
             help='username (OPTIONAL)')
-    parser.add_option('-p', '--par', dest='par', type='int',
+    connection_group.add_option('-p', '--par', dest='par', type='int',
             help='max number of parallel threads (OPTIONAL)')
-    parser.add_option('-o', '--outdir', dest='outdir',
-            help='output directory for stdout files (OPTIONAL)')
-    parser.add_option('-e', '--errdir', dest='errdir',
-            help='output directory for stderr files (OPTIONAL)')
-    parser.add_option('-t', '--timeout', dest='timeout', type='int',
+    connection_group.add_option('-t', '--timeout', dest='timeout', type='int',
             help='timeout (secs) (0 = no timeout) per host (OPTIONAL)')
-    parser.add_option('-O', '--option', dest='options', action='append',
-            metavar='OPTION', help='SSH option (OPTIONAL)')
-    parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
-            help='turn on warning and diagnostic messages (OPTIONAL)')
-    parser.add_option('-A', '--askpass', dest='askpass', action='store_true',
+    connection_group.add_option('-A', '--askpass', dest='askpass', action='store_true',
             help='Ask for a password (OPTIONAL)')
-    parser.add_option('-x', '--extra-args', action='callback', type='string',
+    connection_group.add_option('-O', '--option', dest='options', action='append',
+            metavar='OPTION', help='SSH option (OPTIONAL)')
+    connection_group.add_option('-x', '--extra-args', action='callback', type='string',
             metavar='ARGS', callback=shlex_append, dest='extra',
             help='Extra command-line arguments, with processing for '
             'spaces, quotes, and backslashes')
-    parser.add_option('-X', '--extra-arg', dest='extra', action='append',
+    connection_group.add_option('-X', '--extra-arg', dest='extra', action='append',
             metavar='ARG', help='Extra command-line argument')
+
+    map(parser.add_option_group, [connection_group, output_group, filter_group])
+    parser.group_map = { # used so subparsers can easily find option groups
+        'filter_group': filter_group,
+        'output_group': output_group,
+        'connection_group': connection_group,
+    }
+
     parser.add_option('-T', '--test', type='int', dest='test_cases',
             help="run against specified number of servers, then stop and ask if it's OK to continue")
-    parser.add_option('--sample-size', type='int',
-            help="choose SAMPLE_SIZE hosts at random and only run against the sample")
-    parser.add_option('--host-regexp',
-            help="only run against hosts that match HOST_REGEXP. If used with --sample-size, "
-                 "this filter is run first.")
 
     return parser
 

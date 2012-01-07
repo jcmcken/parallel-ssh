@@ -14,6 +14,7 @@ remote must be an absolute path.
 import os
 import re
 import sys
+import optparse
 
 parent, bindir = os.path.split(os.path.dirname(os.path.abspath(sys.argv[0])))
 if os.path.exists(os.path.join(parent, 'psshlib')):
@@ -32,8 +33,12 @@ def option_parser():
     parser.epilog = ("Example: pscp -h hosts.txt -l irb2 foo.txt " +
             "/home/irb2/foo.txt")
 
-    parser.add_option('-r', '--recursive', dest='recursive',
+    scp_group = optparse.OptionGroup(parser, 'SCP Options',
+            "Options specific to SCP")
+    scp_group.add_option('-r', '--recursive', dest='recursive',
             action='store_true', help='recusively copy directories (OPTIONAL)')
+    parser.add_option_group(scp_group)
+    parser.group_map['scp_group'] = scp_group
 
     return parser
 

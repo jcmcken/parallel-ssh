@@ -13,6 +13,7 @@ Note that remote must be an absolute path.
 import os
 import re
 import sys
+import optparse
 
 parent, bindir = os.path.split(os.path.dirname(os.path.abspath(sys.argv[0])))
 if os.path.exists(os.path.join(parent, 'psshlib')):
@@ -30,15 +31,19 @@ def option_parser():
     parser.usage = "%prog [OPTIONS] -h hosts.txt local remote"
     parser.epilog = ("Example: prsync -r -h hosts.txt -l irb2 foo " +
           "/home/irb2/foo")
+    rsync_group = optparse.OptionGroup(parser, 'RSYNC Options',
+            "Options specific to RSYNC")
 
-    parser.add_option('-r', '--recursive', dest='recursive',
+    rsync_group.add_option('-r', '--recursive', dest='recursive',
             action='store_true', help='recusively copy directories (OPTIONAL)')
-    parser.add_option('-a', '--archive', dest='archive', action='store_true',
+    rsync_group.add_option('-a', '--archive', dest='archive', action='store_true',
             help='use rsync -a (archive mode) (OPTIONAL)')
-    parser.add_option('-z', '--compress', dest='compress', action='store_true',
+    rsync_group.add_option('-z', '--compress', dest='compress', action='store_true',
             help='use rsync compression (OPTIONAL)')
-    parser.add_option('-S', '--ssh-args', metavar="ARGS", dest='ssh_args',
+    rsync_group.add_option('-S', '--ssh-args', metavar="ARGS", dest='ssh_args',
             action='store', help='extra arguments for ssh')
+    parser.add_option_group(rsync_group)
+    parser.group_map['rsync_group'] = rsync_group
 
     return parser
 
