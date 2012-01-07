@@ -26,6 +26,7 @@ from psshlib.exceptions import FatalError
 from psshlib.task import Task
 from psshlib.cli import common_parser, common_defaults
 from psshlib.ui import print_summary
+from psshlib.hosts import ServerPool
 
 _DEFAULT_TIMEOUT = 60
 
@@ -107,14 +108,5 @@ def do_pssh(hosts, cmdline, opts):
 if __name__ == "__main__":
     opts, args = parse_args()
     cmdline = " ".join(args)
-    try:
-        hosts = psshutil.read_host_files(opts.host_files,
-            default_user=opts.user)
-    except IOError:
-        _, e, _ = sys.exc_info()
-        sys.stderr.write('Could not open hosts file: %s\n' % e.strerror)
-        sys.exit(1)
-    if opts.host_strings:
-        for s in opts.host_strings:
-            hosts.extend(psshutil.parse_host_string(s, default_user=opts.user))
+    hosts = ServerPool(options=opts)
     do_pssh(hosts, cmdline, opts)
