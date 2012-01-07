@@ -13,4 +13,4 @@ class ServerPool(list):
         if options.host_strings:
             for s in options.host_strings:
                 hosts.extend(psshutil.parse_host_string(s, default_user=options.user))
-        self = hosts
+        super(ServerPool, self).__init__(hosts)
