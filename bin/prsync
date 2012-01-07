@@ -31,19 +31,19 @@ def option_parser():
     parser.usage = "%prog [OPTIONS] -h hosts.txt local remote"
     parser.epilog = ("Example: prsync -r -h hosts.txt -l irb2 foo " +
           "/home/irb2/foo")
-    rsync_group = optparse.OptionGroup(parser, 'RSYNC Options',
-            "Options specific to RSYNC")
+    prsync_group = optparse.OptionGroup(parser, 'PRSYNC Options',
+            "Options specific to PRSYNC")
 
-    rsync_group.add_option('-r', '--recursive', dest='recursive',
+    prsync_group.add_option('-r', '--recursive', dest='recursive',
             action='store_true', help='recusively copy directories (OPTIONAL)')
-    rsync_group.add_option('-a', '--archive', dest='archive', action='store_true',
+    prsync_group.add_option('-a', '--archive', dest='archive', action='store_true',
             help='use rsync -a (archive mode) (OPTIONAL)')
-    rsync_group.add_option('-z', '--compress', dest='compress', action='store_true',
+    prsync_group.add_option('-z', '--compress', dest='compress', action='store_true',
             help='use rsync compression (OPTIONAL)')
-    rsync_group.add_option('-S', '--ssh-args', metavar="ARGS", dest='ssh_args',
+    prsync_group.add_option('-S', '--ssh-args', metavar="ARGS", dest='ssh_args',
             action='store', help='extra arguments for ssh')
-    parser.add_option_group(rsync_group)
-    parser.group_map['rsync_group'] = rsync_group
+    parser.add_option_group(prsync_group)
+    parser.group_map['prsync_group'] = prsync_group
 
     return parser
 

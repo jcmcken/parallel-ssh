@@ -32,16 +32,16 @@ def option_parser():
     parser.usage = "%prog [OPTIONS] -h hosts.txt remote local"
     parser.epilog = ("Example: pslurp -h hosts.txt -L /tmp/outdir -l irb2 " +
             "         /home/irb2/foo.txt foo.txt")
-    scp_group = optparse.OptionGroup(parser, 'SCP Options',
-            "Options specific to SCP")
+    pslurp_group = optparse.OptionGroup(parser, 'PSLURP Options',
+            "Options specific to PSLURP")
 
-    scp_group.add_option('-r', '--recursive', dest='recursive',
+    pslurp_group.add_option('-r', '--recursive', dest='recursive',
             action='store_true', help='recusively copy directories (OPTIONAL)')
-    scp_group.add_option('-L', '--localdir', dest='localdir',
+    pslurp_group.add_option('-L', '--localdir', dest='localdir',
             help='output directory for remote file copies')
     
-    parser.add_option_group(scp_group)
-    parser.group_map['scp_group'] = scp_group
+    parser.add_option_group(pslurp_group)
+    parser.group_map['pslurp_group'] = pslurp_group
 
     return parser
 

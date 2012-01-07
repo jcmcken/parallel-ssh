@@ -33,12 +33,12 @@ def option_parser():
     parser.epilog = ("Example: pscp -h hosts.txt -l irb2 foo.txt " +
             "/home/irb2/foo.txt")
 
-    scp_group = optparse.OptionGroup(parser, 'SCP Options',
-            "Options specific to SCP")
-    scp_group.add_option('-r', '--recursive', dest='recursive',
+    pscp_group = optparse.OptionGroup(parser, 'PSCP Options',
+            "Options specific to PSCP")
+    pscp_group.add_option('-r', '--recursive', dest='recursive',
             action='store_true', help='recusively copy directories (OPTIONAL)')
-    parser.add_option_group(scp_group)
-    parser.group_map['scp_group'] = scp_group
+    parser.add_option_group(pscp_group)
+    parser.group_map['pscp_group'] = pscp_group
 
     return parser
 

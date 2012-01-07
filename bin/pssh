@@ -42,14 +42,14 @@ def option_parser():
     output_group.add_option('-P', '--print', dest='print_out', action='store_true',
             help='print output as we get it')
 
-    ssh_group = optparse.OptionGroup(parser, 'SSH Options',
-            "Options specific to SSH")
+    pssh_group = optparse.OptionGroup(parser, 'PSSH Options',
+            "Options specific to PSSH")
 
-    ssh_group.add_option('-I', '--send-input', dest='send_input',
+    pssh_group.add_option('-I', '--send-input', dest='send_input',
             action='store_true',
             help='read from standard input and send as input to ssh')
-    parser.add_option_group(ssh_group)
-    parser.group_map['ssh_group'] = ssh_group
+    parser.add_option_group(pssh_group)
+    parser.group_map['pssh_group'] = pssh_group
 
     return parser
 
