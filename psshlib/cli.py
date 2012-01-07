@@ -58,6 +58,8 @@ def common_parser():
             metavar='ARG', help='Extra command-line argument')
     parser.add_option('-T', '--test', type='int', dest='test_cases',
             help="run against specified number of servers, then stop and ask if it's OK to continue")
+    parser.add_option('--sample-size', type='int',
+            help="choose SAMPLE_SIZE hosts at random and only run against the sample")
 
     return parser
 
