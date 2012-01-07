@@ -65,6 +65,7 @@ class Manager(object):
         # set up the test manager and add first n tasks
         new_opts = deepcopy(self.opts) 
         new_opts.__dict__['test_cases'] = None # remove test_cases option, or there'll be a recursion error
+        new_opts.__dict__['summary'] = None # don't print summary now, do it later
         test_man = self.__class__(new_opts)
         map(test_man.add_task, self.tasks[slice(0, self.test_cases)])
         psshutil.run_manager(test_man)
