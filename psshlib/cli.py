@@ -60,6 +60,8 @@ def common_parser():
             help="run against specified number of servers, then stop and ask if it's OK to continue")
     parser.add_option('--sample-size', type='int',
             help="choose SAMPLE_SIZE hosts at random and only run against the sample")
+    parser.add_option('--host-regexp',
+            help="only run against hosts that match HOST_REGEXP")
 
     return parser
 
