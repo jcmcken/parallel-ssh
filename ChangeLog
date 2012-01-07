@@ -1,17 +1,17 @@
 2012-01-15 Jon McKenzie <jcmcken at gmail.com>
-    * Version 3.0.0
-      - Added -s/--summary option, for printing success/failure summary after a run
-      - Added -B/--progress-bar option, for printing a progress bar instead of task
-        output.
-      - Added --sample-size option, for running against a host sample
-      - Added --host-regexp option, for filtering hosts based on a regular expression
-      - Added -T/--test option, for splitting up a run so that you can first verify
-        your command succeeds on a small number of servers before continuing on the rest.
-      - Help output for all scripts now uses option groups, making it more readable
-      - UI functionality split out into its own submodule 'psshlib.ui'
-      - Host lists are now computed using the ServerPool class in the new submodule
-        'psshlib.hosts'
-      - Other miscellaneous API changes to make things more modular
+	* Version 3.0.0
+	  - Added -s/--summary option, for printing success/failure summary after a run
+	  - Added -B/--progress-bar option, for printing a progress bar instead of task
+		output.
+	  - Added --sample-size option, for running against a host sample
+	  - Added --host-regexp option, for filtering hosts based on a regular expression
+	  - Added -T/--test option, for splitting up a run so that you can first verify
+		your command succeeds on a small number of servers before continuing on the rest.
+	  - Help output for all scripts now uses option groups, making it more readable
+	  - UI functionality split out into its own submodule 'psshlib.ui'
+	  - Host lists are now computed using the ServerPool class in the new submodule
+		'psshlib.hosts'
+	  - Other miscellaneous API changes to make things more modular
 2011-02-02 Andrew McNabb <amcnabb at mcnabbs.org>
 	* Version 2.2.2
 	  - Fixed two crashes (issues 35 and 36).  One affects Python <= 2.5
