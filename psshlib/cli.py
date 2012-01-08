@@ -144,9 +144,6 @@ class CLI(object):
             self.args = ""
         else:
             self.opts, self.args = self.parse_args()
-        
-    def parse_args(self):
-        raise NotImplementedError
 
     def run(self, hosts=[], cmdline=None, opts=None):
         cmdline = cmdline or " ".join(self.args)
@@ -167,6 +164,9 @@ class CLI(object):
         exitcode = self.teardown_manager(manager)
 
         return exitcode
+
+    def parse_args(self):
+        raise NotImplementedError
 
     def setup(self, hosts, cmdline, opts):
         pass
