@@ -136,3 +136,103 @@ def shlex_append(option, opt_str, value, parser):
         lst = []
         setattr(parser.values, option.dest, lst)
     lst.extend(shlex.split(value))
+
+class CLI(object):
+    def __init__(self, opts=None, hosts=[]):
+        if opts:
+            self.opts = opts
+            self.args = ""
+        else:
+            self.opts, self.args = self.parse_args()
+        
+    def parse_args(self):
+        raise NotImplementedError
+
+    def run(self, hosts=[], cmdline=None, opts=None):
+        cmdline = cmdline or " ".join(self.args)
+        opts = opts or self.opts
+        hosts = hosts or ServerPool(opts)
+    
+        if not cmdline:
+            raise Exception
+        elif not hosts:
+            raise Exception
+
+        self.setup(hosts, cmdline, opts)
+
+        manager = self.setup_manager(hosts, cmdline, opts)
+ 
+        psshutil.run_manager(manager)
+
+        exitcode = self.teardown_manager(manager)
+
+        return exitcode
+
+    def setup(self, hosts, cmdline, opts):
+        pass
+
+    def setup_manager(self, hosts, cmdline, opts):
+        raise NotImplementedError
+
+    def teardown_manager(self, manager):
+        raise NotImplementedError
+
+class SecureShellCLI(CLI):
+    def parse_args(self):
+        parser = option_parser()
+        defaults = common_defaults(timeout=_DEFAULT_TIMEOUT)
+        parser.set_defaults(**defaults)
+        opts, args = parser.parse_args()
+    
+        if len(args) == 0 and not opts.send_input:
+            parser.error('Command not specified.')
+    
+        if not opts.host_files and not opts.host_strings:
+            parser.error('Hosts not specified.')
+    
+        return opts, args
+
+    def setup(self, hosts, cmdline, opts):
+        if opts.outdir and not os.path.exists(opts.outdir):
+            os.makedirs(opts.outdir)
+        if opts.errdir and not os.path.exists(opts.errdir):
+            os.makedirs(opts.errdir)
+
+    def setup_manager(self, hosts, cmdline, opts):
+        if opts.send_input:
+            stdin = sys.stdin.read()
+        else:
+            stdin = None
+        manager = Manager(opts)
+        for host, port, user in hosts:
+            cmd = ['ssh', host, '-o', 'NumberOfPasswordPrompts=1',
+                    '-o', 'SendEnv=PSSH_NODENUM']
+            if opts.options:
+                for opt in opts.options:
+                    cmd += ['-o', opt]
+            if user:
+                cmd += ['-l', user]
+            if port:
+                cmd += ['-p', port]
+            if opts.extra:
+                cmd.extend(opts.extra)
+            if cmdline:
+                cmd.append(cmdline)
+            t = Task(host, port, user, cmd, opts, stdin)
+        manager.add_task(t)
+        
+        return manager
+
+    def teardown_manager(self, manager):
+        statuses = [ i.exitstatus for i in manager.done ]
+        if min(statuses) < 0:
+            # At least one process was killed.
+            return 3
+        # The any builtin was introduced in Python 2.5 (so we can't use it yet):
+        #elif any(x==255 for x in statuses):
+        for status in statuses:
+            if status == 255:
+                return 4
+        for status in statuses:
+            if status != 0:
+                return 5
