@@ -407,3 +407,100 @@ class NukeCLI(CLI):
             if status != 0:
                 return 4
         return 0
+
+def prsync_option_parser():
+    parser = common_parser()
+    parser.usage = "%prog [OPTIONS] -h hosts.txt local remote"
+    parser.epilog = ("Example: prsync -r -h hosts.txt -l irb2 foo " +
+          "/home/irb2/foo")
+    prsync_group = optparse.OptionGroup(parser, 'PRSYNC Options',
+            "Options specific to PRSYNC")
+
+    prsync_group.add_option('-r', '--recursive', dest='recursive',
+            action='store_true', help='recusively copy directories (OPTIONAL)')
+    prsync_group.add_option('-a', '--archive', dest='archive', action='store_true',
+            help='use rsync -a (archive mode) (OPTIONAL)')
+    prsync_group.add_option('-z', '--compress', dest='compress', action='store_true',
+            help='use rsync compression (OPTIONAL)')
+    prsync_group.add_option('-S', '--ssh-args', metavar="ARGS", dest='ssh_args',
+            action='store', help='extra arguments for ssh')
+    parser.add_option_group(prsync_group)
+    parser.group_map['prsync_group'] = prsync_group
+
+    return parser
+
+class RemoteSyncCLI(CLI):
+    def parse_args(self):
+        parser = prsync_option_parser()
+        defaults = common_defaults()
+        parser.set_defaults(**defaults)
+        opts, args = parser.parse_args()
+    
+        if len(args) < 1:
+            parser.error('Paths not specified.')
+    
+        if len(args) < 2:
+            parser.error('Remote path not specified.')
+    
+        if len(args) > 2:
+            parser.error('Extra arguments given after the remote path.')
+    
+        if not opts.host_files and not opts.host_strings:
+            parser.error('Hosts not specified.')
+    
+        return opts, args
+
+    def setup(self, opts):
+        if opts.outdir and not os.path.exists(opts.outdir):
+            os.makedirs(opts.outdir)
+        if opts.errdir and not os.path.exists(opts.errdir):
+            os.makedirs(opts.errdir)
+
+    def setup_manager(self, hosts, args, opts):
+        local = args[0]
+        remote = args[1]
+        if not re.match("^/", remote):
+            print("Remote path %s must be an absolute path" % remote)
+            sys.exit(3)
+
+        manager = ScpManager(opts)
+        for host, port, user in hosts:
+            ssh = ['ssh']
+            if opts.options:
+                for opt in opts.options:
+                    ssh += ['-o', opt]
+            if port:
+                ssh += ['-p', port]
+            if opts.ssh_args:
+                ssh += [opts.ssh_args]
+    
+            cmd = ['rsync', '-e', ' '.join(ssh)]
+            if opts.verbose:
+                cmd.append('-v')
+            if opts.recursive:
+                cmd.append('-r')
+            if opts.archive:
+                cmd.append('-a')
+            if opts.compress:
+                cmd.append('-z')
+            if opts.extra:
+                cmd.extend(opts.extra)
+            cmd.append(local)
+            if user:
+                cmd.append('%s@%s:%s' % (user, host, remote))
+            else:
+                cmd.append('%s:%s' % (host, remote))
+            t = Task(host, port, user, cmd, opts)
+            manager.add_task(t)
+
+        return manager
+
+    def teardown_manager(self, manager):
+        statuses = [ i.exitstatus for i in manager.done ]
+        if min(statuses) < 0:
+            # At least one process was killed.
+            return 3
+        for status in statuses:
+            if status != 0:
+                return 4
+        return 0
