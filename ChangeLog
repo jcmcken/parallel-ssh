@@ -11,6 +11,8 @@
 	  - UI functionality split out into its own submodule 'psshlib.ui'
 	  - Host lists are now computed using the ServerPool class in the new submodule
 		'psshlib.hosts'
+	  - Refactored and minified all scripts. All logic is now implemented in 'psshlib.cli'. 
+	    Makes it easy to programmatically call any of the CLIs without hacking at sys.path
 	  - Other miscellaneous API changes to make things more modular
 2011-02-02 Andrew McNabb <amcnabb at mcnabbs.org>
 	* Version 2.2.2
