@@ -348,3 +348,61 @@ class SecureCopyCLI(CLI):
             if status != 0:
                 return 4
         return 0
+
+def pnuke_option_parser():
+    parser = common_parser()
+    parser.usage = "%prog [OPTIONS] -h hosts.txt pattern"
+    parser.epilog = "Example: pnuke -h hosts.txt -l irb2 java"
+    return parser
+
+class NukeCLI(CLI):
+    def parse_args():
+        parser = pnuke_option_parser()
+        defaults = common_defaults(timeout=_DEFAULT_TIMEOUT)
+        parser.set_defaults(**defaults)
+        opts, args = parser.parse_args()
+    
+        if len(args) < 1:
+            parser.error('Pattern not specified.')
+    
+        if len(args) > 1:
+            parser.error('Extra arguments given after the pattern.')
+    
+        if not opts.host_files and not opts.host_strings:
+            parser.error('Hosts not specified.')
+    
+        return opts, args
+
+    def setup(self, opts):
+        if opts.outdir and not os.path.exists(opts.outdir):
+            os.makedirs(opts.outdir)
+        if opts.errdir and not os.path.exists(opts.errdir):
+            os.makedirs(opts.errdir)
+
+    def setup_manager(self, hosts, args, opts):
+        pattern = args[0]
+        manager = Manager(opts)
+        for host, port, user in hosts:
+            cmd = ['ssh', host, '-o', 'NumberOfPasswordPrompts=1']
+            if opts.options:
+                for opt in opts.options:
+                    cmd += ['-o', opt]
+            if user:
+                cmd += ['-l', user]
+            if port:
+                cmd += ['-p', port]
+            if opts.extra:
+                cmd.extend(opts.extra)
+            cmd.append('pkill -9 %s' % pattern)
+            t = Task(host, port, user, cmd, opts)
+            manager.add_task(t)
+        return manager
+
+    def teardown_manager(self, manager):
+        if min(statuses) < 0:
+            # At least one process was killed.
+            return 3
+        for status in statuses:
+            if status != 0:
+                return 4
+        return 0
