@@ -268,3 +268,4 @@ class SecureShellCLI(CLI):
         for status in statuses:
             if status != 0:
                 return 5
+        return 0
