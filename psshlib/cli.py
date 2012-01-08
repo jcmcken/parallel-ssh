@@ -19,7 +19,6 @@ from psshlib.hosts import ServerPool
 _DEFAULT_PARALLELISM = 32
 _DEFAULT_TIMEOUT     = 0 # "infinity" by default
 
-
 def common_parser():
     """
     Create a basic OptionParser with arguments common to all pssh programs.
@@ -146,26 +145,26 @@ def shlex_append(option, opt_str, value, parser):
     lst.extend(shlex.split(value))
 
 class CLI(object):
-    def __init__(self, opts=None, hosts=[]):
+    def __init__(self, opts=None):
         if opts:
             self.opts = opts
             self.args = ""
         else:
             self.opts, self.args = self.parse_args()
 
-    def run(self, hosts=[], cmdline=None, opts=None):
-        cmdline = cmdline or " ".join(self.args)
+    def run(self, hosts=[], args=None, opts=None):
+        args = args or self.args
         opts = opts or self.opts
         hosts = hosts or ServerPool(opts)
     
-        if not cmdline:
+        if args is None:
             raise Exception
         elif not hosts:
             raise Exception
 
-        self.setup(hosts, cmdline, opts)
+        self.setup(opts)
 
-        manager = self.setup_manager(hosts, cmdline, opts)
+        manager = self.setup_manager(hosts, args, opts)
  
         psshutil.run_manager(manager)
 
@@ -176,10 +175,10 @@ class CLI(object):
     def parse_args(self):
         raise NotImplementedError
 
-    def setup(self, hosts, cmdline, opts):
+    def setup(self, opts):
         pass
 
-    def setup_manager(self, hosts, cmdline, opts):
+    def setup_manager(self, hosts, args, opts):
         raise NotImplementedError
 
     def teardown_manager(self, manager):
@@ -224,13 +223,14 @@ class SecureShellCLI(CLI):
     
         return opts, args
 
-    def setup(self, hosts, cmdline, opts):
+    def setup(self, opts):
         if opts.outdir and not os.path.exists(opts.outdir):
             os.makedirs(opts.outdir)
         if opts.errdir and not os.path.exists(opts.errdir):
             os.makedirs(opts.errdir)
 
-    def setup_manager(self, hosts, cmdline, opts):
+    def setup_manager(self, hosts, args, opts):
+        cmdline = " ".join(args)
         if opts.send_input:
             stdin = sys.stdin.read()
         else:
