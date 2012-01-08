@@ -251,7 +251,7 @@ class SecureShellCLI(CLI):
             if cmdline:
                 cmd.append(cmdline)
             t = Task(host, port, user, cmd, opts, stdin)
-        manager.add_task(t)
+            manager.add_task(t)
         
         return manager
 
