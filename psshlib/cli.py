@@ -504,3 +504,104 @@ class RemoteSyncCLI(CLI):
             if status != 0:
                 return 4
         return 0
+
+def pslurp_option_parser():
+    parser = common_parser()
+    parser.usage = "%prog [OPTIONS] -h hosts.txt remote local"
+    parser.epilog = ("Example: pslurp -h hosts.txt -L /tmp/outdir -l irb2 " +
+            "         /home/irb2/foo.txt foo.txt")
+    pslurp_group = optparse.OptionGroup(parser, 'PSLURP Options',
+            "Options specific to PSLURP")
+
+    pslurp_group.add_option('-r', '--recursive', dest='recursive',
+            action='store_true', help='recusively copy directories (OPTIONAL)')
+    pslurp_group.add_option('-L', '--localdir', dest='localdir',
+            help='output directory for remote file copies')
+    
+    parser.add_option_group(pslurp_group)
+    parser.group_map['pslurp_group'] = pslurp_group
+
+    return parser
+
+class SecureReverseCopyCLI(CLI):
+    def parse_args(self):
+        parser = pslurp_option_parser()
+        defaults = common_defaults()
+        parser.set_defaults(**defaults)
+        opts, args = parser.parse_args()
+    
+        if len(args) < 1:
+            parser.error('Paths not specified.')
+    
+        if len(args) < 2:
+            parser.error('Local path not specified.')
+    
+        if len(args) > 2:
+            parser.error('Extra arguments given after the local path.')
+    
+        if not opts.host_files and not opts.host_strings:
+            parser.error('Hosts not specified.')
+    
+        return opts, args
+
+    def setup(self, opts):
+        if opts.localdir and not os.path.exists(opts.localdir):
+            os.makedirs(opts.localdir)
+        if opts.outdir and not os.path.exists(opts.outdir):
+            os.makedirs(opts.outdir)
+        if opts.errdir and not os.path.exists(opts.errdir):
+            os.makedirs(opts.errdir)
+
+    def setup_manager(self, hosts, args, opts):
+        remote = args[0]
+        local = args[1]
+        if not re.match("^/", remote):
+            print("Remote path %s must be an absolute path" % remote)
+            sys.exit(3)
+
+        for host, port, user in hosts:
+            if opts.localdir:
+                dirname = "%s/%s" % (opts.localdir, host)
+            else:
+                dirname = host
+            if not os.path.exists(dirname):
+                os.mkdir(dirname)
+
+        manager = ScpManager(opts)
+        for host, port, user in hosts:
+            if opts.localdir:
+                localpath = "%s/%s/%s" % (opts.localdir, host, local)
+            else:
+                localpath = "%s/%s" % (host, local)
+            cmd = ['scp', '-qC']
+            if opts.options:
+                for opt in opts.options:
+                    cmd += ['-o', opt]
+            if port:
+                cmd += ['-P', port]
+            if opts.recursive:
+                cmd.append('-r')
+            if opts.extra:
+                cmd.extend(opts.extra)
+            if user:
+                cmd.append('%s@%s:%s' % (user, host, remote))
+            else:
+                cmd.append('%s:%s' % (host, remote))
+            cmd.append(localpath)
+            t = Task(host, port, user, cmd, opts)
+            manager.add_task(t)
+
+        return manager
+
+    def teardown_manager(self, manager):
+        statuses = [ i.exitstatus for i in manager.done ]
+        if min(statuses) < 0:
+            # At least one process was killed.
+            return 3
+        for status in statuses:
+            if status == 255:
+                return 4 
+        for status in statuses:
+            if status != 0:
+                return 5
+        return 0
