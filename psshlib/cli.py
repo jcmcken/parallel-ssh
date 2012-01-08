@@ -356,7 +356,7 @@ def pnuke_option_parser():
     return parser
 
 class NukeCLI(CLI):
-    def parse_args():
+    def parse_args(self):
         parser = pnuke_option_parser()
         defaults = common_defaults(timeout=_DEFAULT_TIMEOUT)
         parser.set_defaults(**defaults)
