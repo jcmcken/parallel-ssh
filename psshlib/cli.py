@@ -52,6 +52,9 @@ def common_parser():
             help='output directory for stdout files (OPTIONAL)')
     output_group.add_option('-e', '--errdir', dest='errdir',
             help='output directory for stderr files (OPTIONAL)')
+    output_group.add_option('-F', '--fork-hosts', metavar='UID',
+            help='given a unique ID, UID, output all failed hosts to a file called UID.failed.lst '
+                 'and all successful hosts to a file called UID.passed.lst')
 
     connection_group = optparse.OptionGroup(parser, "Connection Options",
             "Customize the destination, authentication, pooling, timing, and "

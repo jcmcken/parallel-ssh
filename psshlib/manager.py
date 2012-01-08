@@ -101,6 +101,16 @@ class Manager(object):
         if self.opts.summary:
             print_summary(self.succeeded, self.ssh_failed, self.killed, self.cmd_failed)
 
+        if self.opts.fork_hosts:
+            failed_file = open(self.opts.fork_hosts + '.failed.lst', 'w')
+            passed_file = open(self.opts.fork_hosts + '.passed.lst', 'w')
+            
+            for i in self.ssh_failed + self.killed + self.cmd_failed:
+                failed_file.write(i.host + '\n')
+            
+            for i in self.succeeded:
+                passed_file.write(i.host + '\n')
+
         return [task.exitstatus for task in self.done]
     
     def _run(self):
