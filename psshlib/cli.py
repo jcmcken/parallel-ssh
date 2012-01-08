@@ -399,6 +399,7 @@ class NukeCLI(CLI):
         return manager
 
     def teardown_manager(self, manager):
+        statuses = [ i.exitstatus for i in manager.done ]
         if min(statuses) < 0:
             # At least one process was killed.
             return 3
