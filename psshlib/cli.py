@@ -7,6 +7,14 @@ import shlex
 import sys
 import textwrap
 import version
+import fcntl
+import sys
+
+from psshlib import psshutil
+from psshlib.manager import Manager
+from psshlib.exceptions import FatalError
+from psshlib.task import Task
+from psshlib.hosts import ServerPool
 
 _DEFAULT_PARALLELISM = 32
 _DEFAULT_TIMEOUT     = 0 # "infinity" by default
@@ -177,9 +185,33 @@ class CLI(object):
     def teardown_manager(self, manager):
         raise NotImplementedError
 
+def pssh_option_parser():
+    parser = common_parser()
+    parser.usage = "%prog [OPTIONS] command [...]"
+    parser.epilog = "Example: pssh -h hosts.txt -l irb2 -o /tmp/foo uptime"
+
+    output_group = parser.group_map['output_group']
+
+    output_group.add_option('-i', '--inline', dest='inline', action='store_true',
+            help='inline aggregated output for each server')
+    output_group.add_option('-P', '--print', dest='print_out', action='store_true',
+            help='print output as we get it')
+
+    pssh_group = optparse.OptionGroup(parser, 'PSSH Options',
+            "Options specific to PSSH")
+
+    pssh_group.add_option('-I', '--send-input', dest='send_input',
+            action='store_true',
+            help='read from standard input and send as input to ssh')
+    parser.add_option_group(pssh_group)
+    parser.group_map['pssh_group'] = pssh_group
+
+    return parser
+
 class SecureShellCLI(CLI):
+
     def parse_args(self):
-        parser = option_parser()
+        parser = pssh_option_parser()
         defaults = common_defaults(timeout=_DEFAULT_TIMEOUT)
         parser.set_defaults(**defaults)
         opts, args = parser.parse_args()
