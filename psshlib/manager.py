@@ -6,19 +6,17 @@ import os
 import select
 import signal
 import sys
-import threading
+import datetime
 
-try:
-    import queue
-except ImportError:
-    import Queue as queue
 
 from psshlib.askpass_server import PasswordServer
 from psshlib import psshutil
 from psshlib.ui import ProgressBar, ask_yes_or_no, clear_line, print_task_report, print_summary
 from psshlib.exceptions import FatalError
+from psshlib.output import Writer, SshTaskDatabase
 
 READ_SIZE = 1 << 16
+
 
 class Manager(object):
     """Executes tasks concurrently.
@@ -284,6 +282,14 @@ class ScpManager(Manager):
             else:
                 self.succeeded.append(task)
 
+class SshManager(Manager):
+    def run(self):
+        super(SshManager, self).run()
+
+        if self.opts.sqlite_db:
+            db = SshTaskDatabase(self.opts.sqlite_db)
+            map(db.capture_data, self.done)
+            db.close()
 
 class IOMap(object):
     """A manager for file descriptors and their associated handlers.
@@ -357,76 +363,4 @@ class IOMap(object):
                 raise FatalError
 
 
-class Writer(threading.Thread):
-    """Thread that writes to files by processing requests from a Queue.
-
-    Until AIO becomes widely available, it is impossible to make a nonblocking
-    write to an ordinary file.  The Writer thread processes all writing to
-    ordinary files so that the main thread can work without blocking.
-    """
-    OPEN = object()
-    EOF = object()
-    ABORT = object()
-
-    def __init__(self, outdir, errdir):
-        threading.Thread.__init__(self)
-        # A daemon thread automatically dies if the program is terminated.
-        self.setDaemon(True)
-        self.queue = queue.Queue()
-        self.outdir = outdir
-        self.errdir = errdir
-
-        self.host_counts = {}
-        self.files = {}
-
-    def run(self):
-        while True:
-            filename, data = self.queue.get()
-            if filename == self.ABORT:
-                return
-
-            if data == self.OPEN:
-                self.files[filename] = open(filename, 'wb', buffering=1)
-                psshutil.set_cloexec(self.files[filename])
-            else:
-                dest = self.files[filename]
-                if data == self.EOF:
-                    dest.close()
-                else:
-                    dest.write(data)
-
-    def open_files(self, host):
-        """Called from another thread to create files for stdout and stderr.
-
-        Returns a pair of filenames (outfile, errfile).  These filenames are
-        used as handles for future operations.  Either or both may be None if
-        outdir or errdir or not set.
-        """
-        outfile = errfile = None
-        if self.outdir or self.errdir:
-            count = self.host_counts.get(host, 0)
-            self.host_counts[host] = count + 1
-            if count:
-                filename = "%s.%s" % (host, count)
-            else:
-                filename = host
-            if self.outdir:
-                outfile = os.path.join(self.outdir, filename)
-                self.queue.put((outfile, self.OPEN))
-            if self.errdir:
-                errfile = os.path.join(self.errdir, filename)
-                self.queue.put((errfile, self.OPEN))
-        return outfile, errfile
-
-    def write(self, filename, data):
-        """Called from another thread to enqueue a write."""
-        self.queue.put((filename, data))
-
-    def close(self, filename):
-        """Called from another thread to close the given file."""
-        self.queue.put((filename, self.EOF))
-
-    def signal_quit(self):
-        """Called from another thread to request the Writer to quit."""
-        self.queue.put((self.ABORT, None))
 

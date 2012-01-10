@@ -12,9 +12,9 @@ import sys
 import re
 
 from psshlib import psshutil
-from psshlib.manager import Manager, ScpManager
+from psshlib.manager import Manager, ScpManager, SshManager
 from psshlib.exceptions import FatalError
-from psshlib.task import Task
+from psshlib.task import Task, SshTask
 from psshlib.hosts import ServerPool
 
 _DEFAULT_PARALLELISM = 32
@@ -196,14 +196,15 @@ def pssh_option_parser():
 
     pssh_group = optparse.OptionGroup(parser, 'PSSH Options',
             "Options specific to PSSH")
+    pssh_group.add_option('-I', '--send-input', dest='send_input',
+            action='store_true',
+            help='read from standard input and send as input to ssh')
     pssh_group.add_option('-i', '--inline', dest='inline', action='store_true',
             help='inline aggregated output for each server')
     pssh_group.add_option('-P', '--print', dest='print_out', action='store_true',
             help='print output as we get it')
-
-    pssh_group.add_option('-I', '--send-input', dest='send_input',
-            action='store_true',
-            help='read from standard input and send as input to ssh')
+    pssh_group.add_option('--sqlite-db', metavar='FILENAME',
+            help='store all output data in sqlite3 database FILENAME')
     parser.add_option_group(pssh_group)
     parser.group_map['pssh_group'] = pssh_group
 
@@ -237,7 +238,7 @@ class SecureShellCLI(CLI):
             stdin = sys.stdin.read()
         else:
             stdin = None
-        manager = Manager(opts)
+        manager = SshManager(opts)
         for host, port, user in hosts:
             cmd = ['ssh', host, '-o', 'NumberOfPasswordPrompts=1',
                     '-o', 'SendEnv=PSSH_NODENUM']
@@ -252,7 +253,7 @@ class SecureShellCLI(CLI):
                 cmd.extend(opts.extra)
             if cmdline:
                 cmd.append(cmdline)
-            t = Task(host, port, user, cmd, opts, stdin)
+            t = SshTask(host, port, user, cmd, cmdline, opts, stdin)
             manager.add_task(t)
         
         return manager

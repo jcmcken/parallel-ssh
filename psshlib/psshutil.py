@@ -5,6 +5,7 @@ import fcntl
 import string
 import sys
 import time
+import datetime
 
 from psshlib.exceptions import FatalError
 
@@ -118,4 +119,7 @@ def run_manager(manager):
     except FatalError:
        sys.exit(1)
     return statuses
+
+def convert_task_time(timestamp):
+    return datetime.datetime.utcfromtimestamp(timestamp)
     
