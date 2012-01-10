@@ -363,6 +363,7 @@ class SshTaskDatabase(object):
         started = datetime.datetime.utcfromtimestamp(task.timestamp).isoformat()
         entries = (None, started, task.host, ' '.join(task.cmd), task.stdout, task.stderr, task.exitstatus)
         self.insert('tasks', entries)
+        self.conn.commit()
 
     def close(self):
         self.cursor.close()
