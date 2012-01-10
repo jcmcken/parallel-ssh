@@ -316,7 +316,7 @@ class SshTaskDatabase(object):
             "CREATE TABLE tasks ("
                 "id INTEGER PRIMARY KEY,"
                 "started INTEGER," # use SQLite ``date`` function to convert UNIX epoch -> datetime
-                "hostname VARCHAR(255),"
+                "hostname VARCHAR(255)," # normally would make this a foreign key, but no FK in python 2.4 sqlite
                 "command TEXT,"
                 "stdout TEXT,"
                 "stderr TEXT,"
