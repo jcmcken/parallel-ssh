@@ -372,8 +372,8 @@ class SshManager(Manager):
     def run(self):
         super(SshManager, self).run()
 
-        if self.opts.sqlite:
-            db = SshTaskDatabase(self.opts.sqlite)
+        if self.opts.sqlite_db:
+            db = SshTaskDatabase(self.opts.sqlite_db)
             map(db.capture_data, self.done)
             db.close()
 
