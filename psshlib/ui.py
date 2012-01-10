@@ -29,10 +29,15 @@ def print_summary(succeeded, ssh_failed, killed, cmd_failed=[]): # cmd_failed is
     print
 
 def format_summary(data):
-    keys, values = zip( *[ i for i in data if i[1] != 0 ] ) # filter out zero-data entries
-    keys = map(B, keys)
-    values = map(B, map(str, values))
-    return " / ".join([ "[%s] %s" % (i[1], i[0]) for i in zip(keys, values) ])
+    nonzero_data = [ i for i in data if i[1] != 0 ]
+    if nonzero_data:
+        keys, values = zip( *nonzero_data ) # filter out zero-data entries
+        keys = map(B, keys)
+        values = map(B, map(str, values))
+        return_data = " / ".join([ "[%s] %s" % (i[1], i[0]) for i in zip(keys, values) ])
+    else:
+        return_data = "(none)"
+    return return_data
 
 def print_task_report(task):
     sequence = task.sequence
