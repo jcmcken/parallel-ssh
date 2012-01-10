@@ -367,6 +367,16 @@ class SshTaskDatabase(object):
     def close(self):
         self.cursor.close()
 
+class SshManager(Manager):
+    def run(self):
+        super(SshManager, self).run()
+
+        if self.opts.sqlite:
+            db = SshTaskDatabase(self.opts.sqlite)
+            map(db.capture_data, self.done)
+            db.close()
+
+
 class IOMap(object):
     """A manager for file descriptors and their associated handlers.
 
