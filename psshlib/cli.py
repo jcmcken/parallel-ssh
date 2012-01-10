@@ -202,10 +202,11 @@ def pssh_option_parser():
 
     pssh_group = optparse.OptionGroup(parser, 'PSSH Options',
             "Options specific to PSSH")
-
     pssh_group.add_option('-I', '--send-input', dest='send_input',
             action='store_true',
             help='read from standard input and send as input to ssh')
+    pssh_group.add_option('--sqlite-db', metavar='FILENAME',
+            help='store all output data in sqlite3 database FILENAME')
     parser.add_option_group(pssh_group)
     parser.group_map['pssh_group'] = pssh_group
 
