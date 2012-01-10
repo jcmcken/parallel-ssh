@@ -323,15 +323,16 @@ class SshTaskDatabase(object):
                 "exitcode INTEGER"
             ")"
         )
-
+    @property
     def _initial_meta(self):
         return [
+        #    pk    key        value
             (None, 'created', datetime.datetime.utcnow().isoformat()),
             (None, 'schema_version', self.version),
         ]
 
     def _populate_initial(self):
-        map(lambda t: self.insert('meta', t), self._initial_meta())
+        map(lambda t: self.insert('meta', t), self._initial_meta)
 
     def _schema_ver_is_valid(self):
         try:
