@@ -14,7 +14,7 @@ import re
 from psshlib import psshutil
 from psshlib.manager import Manager, ScpManager, SshManager
 from psshlib.exceptions import FatalError
-from psshlib.task import Task
+from psshlib.task import Task, SshTask
 from psshlib.hosts import ServerPool
 
 _DEFAULT_PARALLELISM = 32
@@ -255,7 +255,7 @@ class SecureShellCLI(CLI):
                 cmd.extend(opts.extra)
             if cmdline:
                 cmd.append(cmdline)
-            t = Task(host, port, user, cmd, opts, stdin)
+            t = SshTask(host, port, user, cmd, cmdline, opts, stdin)
             manager.add_task(t)
         
         return manager
