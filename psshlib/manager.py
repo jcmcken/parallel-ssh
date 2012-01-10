@@ -7,11 +7,20 @@ import select
 import signal
 import sys
 import threading
+import datetime
 
 try:
     import queue
 except ImportError:
     import Queue as queue
+
+try:
+    import sqlite3 as sqlite
+    expand_sql_tuple = False
+except ImportError:
+    import sqlite 
+    expand_sql_tuple = True
+import _sqlite
 
 from psshlib.askpass_server import PasswordServer
 from psshlib import psshutil
@@ -19,6 +28,7 @@ from psshlib.ui import ProgressBar, ask_yes_or_no, clear_line, print_task_report
 from psshlib.exceptions import FatalError
 
 READ_SIZE = 1 << 16
+
 
 class Manager(object):
     """Executes tasks concurrently.
@@ -284,6 +294,78 @@ class ScpManager(Manager):
             else:
                 self.succeeded.append(task)
 
+class SshTaskDatabase(object):
+    version = '0.1'
+
+    def __init__(self, uri):
+        self.uri = uri
+        self.conn = sqlite.connect(self.uri)
+        self.cursor = self.conn.cursor()
+        self._initialize_db()
+
+    def _create_tables(self):
+        self.cursor.execute(
+            "CREATE TABLE meta ("
+                "id INTEGER PRIMARY KEY,"
+                "key VARCHAR(15),"
+                "value VARCHAR(15)"
+            ")"        
+        )
+
+        self.cursor.execute(
+            "CREATE TABLE tasks ("
+                "id INTEGER PRIMARY KEY,"
+                "started INTEGER," # use SQLite ``date`` function to convert UNIX epoch -> datetime
+                "hostname VARCHAR(255),"
+                "command TEXT,"
+                "stdout TEXT,"
+                "stderr TEXT,"
+                "exitcode INTEGER"
+            ")"
+        )
+
+    def _initial_meta(self):
+        return [
+            (None, 'created', datetime.datetime.utcnow().isoformat()),
+            (None, 'schema_version', self.version),
+        ]
+
+    def _populate_initial(self):
+        map(lambda t: self.insert('meta', t), self._initial_meta())
+
+    def _schema_ver_is_valid(self):
+        try:
+            self.cursor.execute("select value from meta where key = 'schema_version'")
+            version = self.cursor.fetchone()[0]
+        except _sqlite.DatabaseError: # if no meta table exists
+            return False
+        except TypeError: # if return value is None
+            return False
+            
+        return True
+
+    def _initialize_db(self):
+        if self._schema_ver_is_valid():
+            return
+        self._create_tables()
+        self._populate_initial()
+        self.conn.commit()
+
+    def insert(self, table, values):
+        placeholder = '(' + ','.join(['%s'] * len(values)) + ')'
+        sql_string = "insert into %s values %s" % ( table, placeholder )
+        if expand_sql_tuple: # pysqlite v1
+            self.cursor.execute(sql_string, *values)
+        else:                # pysqlite v2+ or Python stdlib sqlite3 lib
+            self.cursor.execute(sql_string, values)
+
+    def capture_data(self, task):
+        started = datetime.datetime.utcfromtimestamp(task.timestamp).isoformat()
+        entries = (started, task.host, task.cmd, task.stdout, task.stderr, task.exitstatus)
+        self.insert('tasks', entries)
+
+    def close(self):
+        self.cursor.close()
 
 class IOMap(object):
     """A manager for file descriptors and their associated handlers.
