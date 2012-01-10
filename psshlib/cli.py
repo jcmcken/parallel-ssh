@@ -193,15 +193,13 @@ def pssh_option_parser():
     parser.usage = "%prog [OPTIONS] command [...]"
     parser.epilog = "Example: pssh -h hosts.txt -l irb2 -o /tmp/foo uptime"
 
-    output_group = parser.group_map['output_group']
-
-    output_group.add_option('-i', '--inline', dest='inline', action='store_true',
-            help='inline aggregated output for each server')
-    output_group.add_option('-P', '--print', dest='print_out', action='store_true',
-            help='print output as we get it')
 
     pssh_group = optparse.OptionGroup(parser, 'PSSH Options',
             "Options specific to PSSH")
+    pssh_group.add_option('-i', '--inline', dest='inline', action='store_true',
+            help='inline aggregated output for each server')
+    pssh_group.add_option('-P', '--print', dest='print_out', action='store_true',
+            help='print output as we get it')
 
     pssh_group.add_option('-I', '--send-input', dest='send_input',
             action='store_true',
