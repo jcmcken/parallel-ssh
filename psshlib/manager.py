@@ -362,7 +362,7 @@ class SshTaskDatabase(object):
 
     def capture_data(self, task):
         started = datetime.datetime.utcfromtimestamp(task.timestamp).isoformat()
-        entries = (None, started, task.host, task.raw_cmd, task.stdout, task.stderr, task.exitstatus)
+        entries = (None, started, task.host, task.raw_cmd, task.outputbuffer, task.errorbuffer, task.exitstatus)
         self.insert('tasks', entries)
         self.conn.commit()
 
