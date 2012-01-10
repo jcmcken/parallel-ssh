@@ -12,7 +12,7 @@ import sys
 import re
 
 from psshlib import psshutil
-from psshlib.manager import Manager, ScpManager
+from psshlib.manager import Manager, ScpManager, SshManager
 from psshlib.exceptions import FatalError
 from psshlib.task import Task
 from psshlib.hosts import ServerPool
@@ -240,7 +240,7 @@ class SecureShellCLI(CLI):
             stdin = sys.stdin.read()
         else:
             stdin = None
-        manager = Manager(opts)
+        manager = SshManager(opts)
         for host, port, user in hosts:
             cmd = ['ssh', host, '-o', 'NumberOfPasswordPrompts=1',
                     '-o', 'SendEnv=PSSH_NODENUM']
