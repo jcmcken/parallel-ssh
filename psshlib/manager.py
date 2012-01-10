@@ -88,7 +88,7 @@ class Manager(object):
     def run(self):
         """Processes tasks previously added with add_task."""
         self._setup_progress_bar()
-        if self.test_cases:
+        if self.test_cases and self.test_cases < len(self.tasks):
             man1, man2 = self._split_manager()
             self.done = man1.done + man2.done
         else:
