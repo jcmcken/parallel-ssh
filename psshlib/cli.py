@@ -242,7 +242,7 @@ class SecureShellCLI(CLI):
 
     def _generate_script_envelope(self):
         script_name = self._generate_script_name()
-        return "'cat > /tmp/%s; chmod 700 /tmp/%s; /tmp/%s; rm -f /tmp/%s'" % ((script_name,) * 4)
+        return "cat > /tmp/%s; chmod 700 /tmp/%s; /tmp/%s; RET=$?; rm -f /tmp/%s; exit $RET" % ((script_name,) * 4)
 
     def setup_manager(self, hosts, args, opts):
         if not opts.script:
@@ -253,7 +253,7 @@ class SecureShellCLI(CLI):
                 stdin = None
         else:
             cmdline = self._generate_script_envelope()
-            stdin = None
+            stdin = open(opts.script, 'r').read()
         manager = SshManager(opts)
         for host, port, user in hosts:
             cmd = ['ssh', host, '-o', 'NumberOfPasswordPrompts=1',

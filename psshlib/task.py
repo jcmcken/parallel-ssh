@@ -10,6 +10,7 @@ import traceback
 
 from psshlib import askpass_client
 from psshlib import color
+from psshlib.exceptions import FatalError
 
 BUFFER_SIZE = 1 << 16
 
@@ -259,4 +260,3 @@ class SshTask(Task):
     def __init__(self, host, port, user, cmd, raw_cmd, opts, stdin=None):
         self.raw_cmd = raw_cmd
         super(SshTask, self).__init__(host, port, user, cmd, opts, stdin)
-        
