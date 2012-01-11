@@ -237,6 +237,13 @@ class SecureShellCLI(CLI):
         if opts.errdir and not os.path.exists(opts.errdir):
             os.makedirs(opts.errdir)
 
+    def _generate_script_name(self):
+        return "pssh-%s" % psshutil.simple_uuid()
+
+    def _generate_script_envelope(self):
+        script_name = self._generate_script_name()
+        return "'cat > /tmp/%s; chmod 700 /tmp/%s; /tmp/%s; rm -f /tmp/%s'" % ((script_name,) * 4)
+
     def setup_manager(self, hosts, args, opts):
         if not opts.script:
             cmdline = " ".join(args)
@@ -245,7 +252,8 @@ class SecureShellCLI(CLI):
             else:
                 stdin = None
         else:
-            cmdline = ""
+            cmdline = self._generate_script_envelope()
+            stdin = None
         manager = SshManager(opts)
         for host, port, user in hosts:
             cmd = ['ssh', host, '-o', 'NumberOfPasswordPrompts=1',
