@@ -220,7 +220,7 @@ class SecureShellCLI(CLI):
         parser.set_defaults(**defaults)
         opts, args = parser.parse_args()
     
-        if len(args) == 0 and not opts.send_input:
+        if len(args) == 0 and not opts.send_input and not opts.script:
             parser.error('Command not specified.')
     
         if not opts.host_files and not opts.host_strings:
