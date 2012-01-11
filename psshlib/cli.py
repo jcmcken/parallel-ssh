@@ -206,7 +206,7 @@ def pssh_option_parser():
     pssh_group.add_option('--sqlite-db', metavar='FILENAME',
             help='store all output data in sqlite3 database FILENAME')
     pssh_group.add_option('--script',
-            help='secure copy SCRIPT to remote hosts, execute it, then remove it')
+            help='run SCRIPT on remote hosts')
     parser.add_option_group(pssh_group)
     parser.group_map['pssh_group'] = pssh_group
 
