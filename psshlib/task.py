@@ -26,6 +26,7 @@ class Task(object):
     of the process.
     """
     def __init__(self, host, port, user, cmd, opts, stdin=None):
+        self.opts = opts
         self.exitstatus = None
 
         self.host = host
