@@ -67,13 +67,7 @@ class Task(object):
 
         self.sequence = None
 
-    def start(self, nodenum, iomap, writer, askpass_socket=None):
-        """Starts the process and registers files with the IOMap."""
-        self.writer = writer
-
-        if writer:
-            self.outfile, self.errfile = writer.open_files(self.pretty_host)
-
+    def _generate_environ(self, nodenum, askpass_socket):
         # Set up the environment.
         environ = dict(os.environ)
         environ['PSSH_NODENUM'] = str(nodenum)
@@ -89,6 +83,17 @@ class Task(object):
         # if DISPLAY is unset.
         if 'DISPLAY' not in environ:
             environ['DISPLAY'] = 'pssh-gibberish'
+
+        return environ
+
+    def start(self, nodenum, iomap, writer, askpass_socket=None):
+        """Starts the process and registers files with the IOMap."""
+        self.writer = writer
+
+        if writer:
+            self.outfile, self.errfile = writer.open_files(self.pretty_host)
+
+        environ = self._generate_environ(nodenum, askpass_socket)
 
         # Create the subprocess.  Since we carefully call set_cloexec() on
         # all open files, we specify close_fds=False.
