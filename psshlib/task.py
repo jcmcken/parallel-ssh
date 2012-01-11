@@ -86,6 +86,12 @@ class Task(object):
 
         return environ
 
+    def _run_phase(self, environ):
+        # Create the subprocess.  Since we carefully call set_cloexec() on
+        # all open files, we specify close_fds=False.
+        self.proc = Popen(self.cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE,
+                close_fds=False, preexec_fn=os.setsid, env=environ)
+
     def start(self, nodenum, iomap, writer, askpass_socket=None):
         """Starts the process and registers files with the IOMap."""
         self.writer = writer
@@ -95,10 +101,8 @@ class Task(object):
 
         environ = self._generate_environ(nodenum, askpass_socket)
 
-        # Create the subprocess.  Since we carefully call set_cloexec() on
-        # all open files, we specify close_fds=False.
-        self.proc = Popen(self.cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE,
-                close_fds=False, preexec_fn=os.setsid, env=environ)
+        self._run_phase(environ)
+
         self.timestamp = time.time()
         if self.inputbuffer:
             self.stdin = self.proc.stdin
