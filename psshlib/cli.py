@@ -225,6 +225,9 @@ class SecureShellCLI(CLI):
     
         if not opts.host_files and not opts.host_strings:
             parser.error('Hosts not specified.')
+
+        if opts.script and not os.path.isfile(opts.script):
+            parser.error('No such file, "%s".' % opts.script)
     
         return opts, args
 
@@ -235,11 +238,14 @@ class SecureShellCLI(CLI):
             os.makedirs(opts.errdir)
 
     def setup_manager(self, hosts, args, opts):
-        cmdline = " ".join(args)
-        if opts.send_input:
-            stdin = sys.stdin.read()
+        if not opts.script:
+            cmdline = " ".join(args)
+            if opts.send_input:
+                stdin = sys.stdin.read()
+            else:
+                stdin = None
         else:
-            stdin = None
+            cmdline = ""
         manager = SshManager(opts)
         for host, port, user in hosts:
             cmd = ['ssh', host, '-o', 'NumberOfPasswordPrompts=1',

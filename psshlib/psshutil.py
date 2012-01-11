@@ -6,6 +6,11 @@ import string
 import sys
 import time
 import datetime
+try:
+    import hashlib as sha
+except ImportError:
+    import sha
+import random
 
 from psshlib.exceptions import FatalError
 
@@ -122,4 +127,8 @@ def run_manager(manager):
 
 def convert_task_time(timestamp):
     return datetime.datetime.utcfromtimestamp(timestamp)
+
+def simple_uuid():
+    seed = ''.join([ random.choice(string.hexdigits) for i in xrange(24) ])
+    return sha.sha(seed).hexdigest()
     
