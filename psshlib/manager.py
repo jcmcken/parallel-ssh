@@ -287,16 +287,18 @@ class SshManager(Manager):
         super(SshManager, self).run()
 
         if self.opts.sqlite_db:
-            sys.stdout.write('Exporting to database "%s".\n\n' % self.opts.sqlite_db)
+            sys.stdout.write('Exporting to database "%s".\n' % self.opts.sqlite_db)
             db = SshTaskDatabase(self.opts.sqlite_db)
             map(db.capture_data, self.done)
             db.close()
 
         if self.opts.pickle_file:
-            sys.stdout.write('Exporting to pickle file "%s".\n\n' % self.opts.pickle_file)
+            sys.stdout.write('Exporting to pickle file "%s".\n' % self.opts.pickle_file)
             fd = open(self.opts.pickle_file, 'a')
             cPickle.dump(self, fd, cPickle.HIGHEST_PROTOCOL)
             fd.close()
+
+        sys.stdout.write('\n')
 
     def __reduce__(self):
         return (list, tuple(), None, (i.get_data() for i in self.done))
