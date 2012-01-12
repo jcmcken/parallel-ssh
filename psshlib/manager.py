@@ -7,7 +7,7 @@ import select
 import signal
 import sys
 import datetime
-
+import cPickle
 
 from psshlib.askpass_server import PasswordServer
 from psshlib import psshutil
@@ -291,6 +291,15 @@ class SshManager(Manager):
             map(db.capture_data, self.done)
             db.close()
 
+        if self.opts.pickle_file:
+            sys.stdout.write('Exporting to pickle file "%s".\n\n' % self.opts.pickle_file)
+            fd = open(self.opts.pickle_file, 'a')
+            cPickle.dump(self, fd, cPickle.HIGHEST_PROTOCOL)
+            fd.close()
+
+    def __reduce__(self):
+        return (list, tuple(), None, (i.get_data() for i in self.done))
+
 class IOMap(object):
     """A manager for file descriptors and their associated handlers.
 
@@ -361,6 +370,3 @@ class IOMap(object):
                 sys.stderr.write('Fatal error reading from wakeup pipe: %s\n'
                         % message)
                 raise FatalError
-
-
-

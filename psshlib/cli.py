@@ -205,6 +205,8 @@ def pssh_option_parser():
             help='print output as we get it')
     pssh_group.add_option('--sqlite-db', metavar='FILENAME',
             help='store all output data in sqlite3 database FILENAME')
+    pssh_group.add_option('--pickle-file', metavar='FILENAME',
+            help='pickle SSH task data and dump to FILENAME')
     pssh_group.add_option('--script',
             help='run SCRIPT on remote hosts')
     parser.add_option_group(pssh_group)
