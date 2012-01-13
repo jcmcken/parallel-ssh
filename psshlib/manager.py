@@ -300,7 +300,7 @@ class SshManager(Manager):
 
         sys.stdout.write('\n')
 
-    def __reduce__(self):
+    def __reduce__(self): # for pickling task data
         return (list, tuple(), None, (i.get_data() for i in self.done))
 
 class IOMap(object):
