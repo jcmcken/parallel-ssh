@@ -7,13 +7,20 @@
 	  - Added --host-regexp option, for filtering hosts based on a regular expression
 	  - Added -T/--test option, for splitting up a run so that you can first verify
 		your command succeeds on a small number of servers before continuing on the rest.
+	  - Added a -F/--fork-hosts option, which outputs all successful hosts to one file and all
+	    failed hosts to another file. Useful for running follow-up tasks
+	  - Added --sqlite-db option for PSSH. After a run, dumps all task data to a sqlite DB.
+	  - Added --pickle-file option for PSSH. After a run, pickles all task data and dumps to file.
+	  - Added --script option for PSSH. Runs supplied script on all remote machines instead of
+	    running the given command.
 	  - Help output for all scripts now uses option groups, making it more readable
 	  - UI functionality split out into its own submodule 'psshlib.ui'
 	  - Host lists are now computed using the ServerPool class in the new submodule
 		'psshlib.hosts'
 	  - Refactored and minified all scripts. All logic is now implemented in 'psshlib.cli'. 
 	    Makes it easy to programmatically call any of the CLIs without hacking at sys.path
-	  - Other miscellaneous API changes to make things more modular
+	  - Completely refactored many parts of the API, making things easier to maintain and
+	    extend.
 2011-02-02 Andrew McNabb <amcnabb at mcnabbs.org>
 	* Version 2.2.2
 	  - Fixed two crashes (issues 35 and 36).  One affects Python <= 2.5
