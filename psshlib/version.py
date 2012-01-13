@@ -1,3 +1,3 @@
 # Copyright (c) 2011 Andrew McNabb
 
-VERSION = '2.2.2'
+VERSION = '3.0.0'
