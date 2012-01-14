@@ -209,6 +209,10 @@ def pssh_option_parser():
             help='pickle SSH task data and dump to FILENAME')
     pssh_group.add_option('--script',
             help='run SCRIPT on remote hosts')
+    pssh_group.add_option('--sudo', action='store_true',
+            help='when used with the --script option, will do two things differently: '
+                 '1) transfer the script to /root instead of /tmp, 2) run the script '
+                 'as root, not the login user')
     parser.add_option_group(pssh_group)
     parser.group_map['pssh_group'] = pssh_group
 
@@ -244,7 +248,17 @@ class SecureShellCLI(CLI):
 
     def _generate_script_envelope(self):
         script_name = self._generate_script_name()
-        return "cat > /tmp/%s; chmod 700 /tmp/%s; /tmp/%s; RET=$?; rm -f /tmp/%s; exit $RET" % ((script_name,) * 4)
+        if self.opts.sudo:
+            envelope = (
+                "sudo -i 'cat > /root/%s'; sudo -i chmod 700 /root/%s; "
+                "sudo -i /root/%s; RET=$?; sudo -i rm -f /root/%s; exit $RET"
+            )
+        else:
+            envelope = (
+                "cat > /tmp/%s; chmod 700 /tmp/%s; /tmp/%s; RET=$?; rm -f /tmp/%s; "
+                "exit $RET" 
+            )
+        return envelope % ((script_name,) * 4)
 
     def setup_manager(self, hosts, args, opts):
         if not opts.script:
