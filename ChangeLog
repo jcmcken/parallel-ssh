@@ -1,7 +1,7 @@
 2012-01-16 Jon McKenzie <jcmcken at gmail.com>
-    * Version 3.1.0
-      - Added PSSH --sudo companion option for --script, which executes the script as root 
-        if user has passwordless sudo permissions.
+	* Version 3.1.0
+	  - Added PSSH --sudo companion option for --script, which executes the script as root 
+	    if user has passwordless sudo permissions.
 2012-01-15 Jon McKenzie <jcmcken at gmail.com>
 	* Version 3.0.0
 	  - Added -s/--summary option, for printing success/failure summary after a run
