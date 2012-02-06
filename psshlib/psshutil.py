@@ -6,7 +6,13 @@ import string
 import sys
 import time
 import datetime
-import hashlib 
+try:
+    import hashlib 
+    hash_function = hashlib.sha1
+except ImportError:
+    import sha
+    hash_function = sha.sha
+
 import random
 
 from psshlib.exceptions import FatalError
@@ -129,5 +135,5 @@ def convert_task_time(timestamp):
 
 def simple_uuid():
     seed = ''.join([ random.choice(string.hexdigits) for i in xrange(24) ])
-    return hashlib.sha1(seed).hexdigest()
+    return hash_function(seed).hexdigest()
     
