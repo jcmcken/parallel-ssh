@@ -10,10 +10,12 @@ except ImportError:
 try:
     import sqlite3 as sqlite
     expand_sql_tuple = False
+    DATABASE_ERROR = sqlite.DatabaseError
 except ImportError:
     import sqlite 
+    import _sqlite
     expand_sql_tuple = True
-import _sqlite
+    DATABASE_ERROR = _sqlite.DatabaseError
 
 import psshutil
 
@@ -134,7 +136,7 @@ class SshTaskDatabase(object):
         try:
             self.cursor.execute("select value from meta where key = 'schema_version'")
             version = self.cursor.fetchone()[0]
-        except _sqlite.DatabaseError: # if no meta table exists
+        except DATABASE_ERROR: # if no meta table exists
             return False
         except TypeError: # if return value is None
             return False
