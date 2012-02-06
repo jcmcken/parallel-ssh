@@ -60,6 +60,8 @@ def parse_host_entry(line, default_user, default_port):
     Returns a (host, port, user) triple.
     """
     fields = line.split()
+    if len(fields) == 0:
+        return None, None, None
     if len(fields) > 2:
         sys.stderr.write('Bad line: "%s". Format should be'
                 ' [user@]host[:port] [user]\n' % line)
