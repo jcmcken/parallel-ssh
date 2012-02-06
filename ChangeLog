@@ -1,3 +1,10 @@
+2012-02-05 Jon McKenzie <jcmcken at gmail.com>
+	* Version 3.1.1
+	  - Fixed a bug with blank lines in host files (Issue #20).
+	  - Fixed Python 2.4 compatibility vis-a-vis the hashlib module. (Issue
+	  #21)
+	  - Fixed Python 2.5/2.6 compatibility vis-a-vis use of the special _sqlite
+	  module. (Issue #22)
 2012-01-16 Jon McKenzie <jcmcken at gmail.com>
 	* Version 3.1.0
 	  - Added PSSH --sudo companion option for --script, which executes the script as root 
