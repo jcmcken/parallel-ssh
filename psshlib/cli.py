@@ -213,6 +213,9 @@ def pssh_option_parser():
             help='when used with the --script option, will do two things differently: '
                  '1) transfer the script to /root instead of /tmp, 2) run the script '
                  'as root, not the login user')
+    pssh_group.add_option('--script-args', 
+            help='companion option for --script. Passes SCRIPT_ARGS as arguments'
+                 ' to the script run on the remote host.')
     parser.add_option_group(pssh_group)
     parser.group_map['pssh_group'] = pssh_group
 
@@ -242,6 +245,10 @@ class SecureShellCLI(CLI):
             os.makedirs(opts.outdir)
         if opts.errdir and not os.path.exists(opts.errdir):
             os.makedirs(opts.errdir)
+        if opts.script_args is None:
+            opts.script_args = ""
+        else:
+            opts.script_args = repr(opts.script_args) # escape all arguments
 
     def _generate_script_name(self):
         return "pssh-%s" % psshutil.simple_uuid()
@@ -250,15 +257,15 @@ class SecureShellCLI(CLI):
         script_name = self._generate_script_name()
         if self.opts.sudo:
             envelope = (
-                "sudo -i 'cat > /root/%s'; sudo -i chmod 700 /root/%s; "
-                "sudo -i /root/%s; RET=$?; sudo -i rm -f /root/%s; exit $RET"
+                "sudo -i 'cat | sudo -i tee /root/%s 1>/dev/null'; sudo -i chmod 700 /root/%s; "
+                "sudo -i /root/%s %s; RET=$?; sudo -i rm -f /root/%s; exit $RET"
             )
         else:
             envelope = (
-                "cat > /tmp/%s; chmod 700 /tmp/%s; /tmp/%s; RET=$?; rm -f /tmp/%s; "
+                "cat > /tmp/%s; chmod 700 /tmp/%s; /tmp/%s %s; RET=$?; rm -f /tmp/%s; "
                 "exit $RET" 
             )
-        return envelope % ((script_name,) * 4)
+        return envelope % ((script_name,) * 3 + (self.opts.script_args, script_name))
 
     def setup_manager(self, hosts, args, opts):
         if not opts.script:
