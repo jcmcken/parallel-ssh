@@ -213,7 +213,7 @@ def pssh_option_parser():
             help='when used with the --script option, will do two things differently: '
                  '1) transfer the script to /root instead of /tmp, 2) run the script '
                  'as root, not the login user')
-    pssh_group.add_option('--script-args', 
+    pssh_group.add_option('--args', dest='script_args', 
             help='companion option for --script. Passes SCRIPT_ARGS as arguments'
                  ' to the script run on the remote host.')
     parser.add_option_group(pssh_group)
