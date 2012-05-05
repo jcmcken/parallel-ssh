@@ -1,3 +1,7 @@
+2012-05-04 Jon McKenzie <jcmcken at gmail.com>
+	* Version 3.2.1
+	  - Added --args companion option for --script, for passing arguments to
+	    the script when run on remote host.
 2012-02-05 Jon McKenzie <jcmcken at gmail.com>
 	* Version 3.1.1
 	  - Fixed a bug with blank lines in host files (Issue #20).
