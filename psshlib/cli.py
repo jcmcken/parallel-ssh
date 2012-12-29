@@ -257,13 +257,13 @@ class SecureShellCLI(CLI):
         script_name = self._generate_script_name()
         if self.opts.sudo:
             envelope = (
-                "cat | sudo -i tee /root/%s 1>/dev/null; sudo -i chmod 700 /root/%s; "
-                "sudo -i /root/%s %s; RET=$?; sudo -i rm -f /root/%s; exit $RET"
+                "cat | sudo -i tee /root/%s 1>/dev/null; CATRET=$?; sudo -i chmod 700 /root/%s; "
+                "sudo -i /root/%s %s; RET=$((CATRET+$?)); sudo -i rm -f /root/%s; exit $RET"
             )
         else:
             envelope = (
-                "cat > /tmp/%s; chmod 700 /tmp/%s; /tmp/%s %s; RET=$?; rm -f /tmp/%s; "
-                "exit $RET" 
+                "cat > /tmp/%s; CATRET=$?; chmod 700 /tmp/%s; /tmp/%s %s; RET=$((CATRET+$?));"
+                "rm -f /tmp/%s; exit $RET" 
             )
         return envelope % ((script_name,) * 3 + (self.opts.script_args, script_name))
 

@@ -1,3 +1,7 @@
+2012-12-29 Jon McKenzie <jcmcken at gmail.com>
+	* Version 3.2.2
+	  - Fixed a bug with --script where pssh would interpret a run as a success when
+	    the script could not be written on the remote side due to a full disk device.
 2012-05-04 Jon McKenzie <jcmcken at gmail.com>
 	* Version 3.2.1
 	  - Added --args companion option for --script, for passing arguments to
