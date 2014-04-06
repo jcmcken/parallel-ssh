@@ -10,6 +10,7 @@ import version
 import fcntl
 import sys
 import re
+import logging
 
 from psshlib import psshutil
 from psshlib.manager import Manager, ScpManager, SshManager
@@ -23,6 +24,8 @@ _DEFAULT_TIMEOUT     = 0 # "infinity" by default
 _RE_SCRIPT_SHEBANG = ('^(#!)'      # starts with shebang
                       '\s*'        # any whitespace
                       '([^\s]+)')  # runtime (any non-whitespace characters)
+
+LOG = logging.getLogger(__name__)
 
 def common_parser():
     """
@@ -46,6 +49,8 @@ def common_parser():
 
     output_group = optparse.OptionGroup(parser, "Output Options",
             "Customize how session output is handled")
+    output_group.add_option('-d', '--debug', action='store_true',
+            help='print PSSH debug output')
     output_group.add_option('-s', '--summary', dest='summary', action='store_true',
             help='print a summary of successes and failures')
     output_group.add_option('-B', '--progress-bar', dest='progress_bar', action='store_true',
@@ -161,6 +166,8 @@ class CLI(object):
             self.opts, self.args = self.parse_args()
 
     def run(self, hosts=[], args=None, opts=None):
+        if self.opts.debug:
+            self._enable_debug_logging()
         args = args or self.args
         opts = opts or self.opts
         hosts = hosts or ServerPool(opts)
@@ -179,6 +186,10 @@ class CLI(object):
         exitcode = self.teardown_manager(manager)
 
         return exitcode
+
+    def _enable_debug_logging(self):
+        logging.basicConfig()
+        LOG.setLevel(logging.DEBUG)
 
     def parse_args(self):
         raise NotImplementedError
