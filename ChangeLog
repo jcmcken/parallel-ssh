@@ -1,3 +1,16 @@
+2014-04-06 Jon McKenzie <jcmcken at gmail.com>
+	* Version 3.3.0
+	  - Added the --copy-to option for pssh, which allows you to configure
+	    where the script (--script) gets copied on the remote end.
+	  - If a shebang line exists in the script passed to --script, the script
+	    will be executed using the runtime from that shebang rather than a
+		straight execution. This fixes an issue where the --copy-to location
+		is a device mounted with the noexec option.
+	  - Added the --runtime option for pssh, which allows you to manually set
+	    the script (--script) runtime to use.
+	  - Added the --debug option for all p-utilities. Currently not much is
+	    logged, however.
+	  - The --args option now correctly accepts multiple arguments.
 2012-12-29 Jon McKenzie <jcmcken at gmail.com>
 	* Version 3.2.2
 	  - Fixed a bug with --script where pssh would interpret a run as a success when
