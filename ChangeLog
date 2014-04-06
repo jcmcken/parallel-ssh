@@ -4,8 +4,8 @@
 	    where the script (--script) gets copied on the remote end.
 	  - If a shebang line exists in the script passed to --script, the script
 	    will be executed using the runtime from that shebang rather than a
-		straight execution. This fixes an issue where the --copy-to location
-		is a device mounted with the noexec option.
+	    straight execution. This fixes an issue where the --copy-to location
+	    is a device mounted with the noexec option.
 	  - Added the --runtime option for pssh, which allows you to manually set
 	    the script (--script) runtime to use.
 	  - Added the --debug option for all p-utilities. Currently not much is
