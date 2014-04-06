@@ -11,6 +11,8 @@
 	  - Added the --debug option for all p-utilities. Currently not much is
 	    logged, however.
 	  - The --args option now correctly accepts multiple arguments.
+	  - An RPM spec file for Red Hat Enterprise Linux 5/6 (and derivatives)
+	    was added.
 2012-12-29 Jon McKenzie <jcmcken at gmail.com>
 	* Version 3.2.2
 	  - Fixed a bug with --script where pssh would interpret a run as a success when
