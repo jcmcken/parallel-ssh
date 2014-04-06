@@ -23,7 +23,7 @@ _DEFAULT_TIMEOUT     = 0 # "infinity" by default
 
 _RE_SCRIPT_SHEBANG = ('^(#!)'      # starts with shebang
                       '\s*'        # any whitespace
-                      '([^\s]+)')  # runtime (any non-whitespace characters)
+                      '(.+)')      # remainder of line
 
 LOG = logging.getLogger(__name__)
 
