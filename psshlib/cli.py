@@ -269,10 +269,7 @@ class SecureShellCLI(CLI):
             os.makedirs(opts.outdir)
         if opts.errdir and not os.path.exists(opts.errdir):
             os.makedirs(opts.errdir)
-        if opts.script_args is None:
-            opts.script_args = ""
-        else:
-            opts.script_args = repr(opts.script_args) # escape all arguments
+        opts.script_args = (opts.script_args or "").split(';')[0]
 
     def _generate_script_name(self):
         return "pssh-%s" % psshutil.simple_uuid()
