@@ -330,6 +330,7 @@ class SecureShellCLI(CLI):
                 stdin = None
         else:
             cmdline = self._generate_script_envelope()
+            LOG.debug('script envelope is: %s' % cmdline)
             stdin = open(opts.script, 'r').read()
         manager = SshManager(opts)
         for host, port, user in hosts:
