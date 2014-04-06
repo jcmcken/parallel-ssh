@@ -20,6 +20,10 @@ from psshlib.hosts import ServerPool
 _DEFAULT_PARALLELISM = 32
 _DEFAULT_TIMEOUT     = 0 # "infinity" by default
 
+_RE_SCRIPT_SHEBANG = ('^(#!)'      # starts with shebang
+                      '\s*'        # any whitespace
+                      '([^\s]+)')  # runtime (any non-whitespace characters)
+
 def common_parser():
     """
     Create a basic OptionParser with arguments common to all pssh programs.
@@ -216,6 +220,12 @@ def pssh_option_parser():
     pssh_group.add_option('--args', dest='script_args', 
             help='companion option for --script. Passes SCRIPT_ARGS as arguments'
                  ' to the script run on the remote host.')
+    pssh_group.add_option('--runtime', 
+            help='specify the runtime to use when running the script from --script')
+    pssh_group.add_option('--copy-to', default='/tmp',
+            help='where to remotely copy scripts passed via --script (defaults to '
+                 '/root if --sudo is passed, otherwise /tmp)')
+       
     parser.add_option_group(pssh_group)
     parser.group_map['pssh_group'] = pssh_group
 
@@ -237,6 +247,9 @@ class SecureShellCLI(CLI):
 
         if opts.script and not os.path.isfile(opts.script):
             parser.error('No such file, "%s".' % opts.script)
+
+        if opts.copy_to and not opts.copy_to.startswith('/'):
+            parser.error('Remote script directory must be a path')
     
         return opts, args
 
@@ -253,19 +266,52 @@ class SecureShellCLI(CLI):
     def _generate_script_name(self):
         return "pssh-%s" % psshutil.simple_uuid()
 
+    def _parse_runtime(self, line):
+        try:
+            result = re.search(_RE_SCRIPT_SHEBANG, line).group(2)
+        except (IndexError, AttributeError):
+            result = None
+        return result
+
+    def _get_script_runtime(self):
+        firstline = open(self.opts.script, 'r').readline()
+        parsed_runtime = self._parse_runtime(firstline)
+        # if runtime is specified at CL, use that, otherwise try to parse it
+        return self.opts.runtime or self._parse_runtime(firstline)
+
+    def _get_script_dir(self):
+        if self.opts.sudo:
+            default = '/root'
+        else:
+            default = '/tmp'
+        return self.opts.copy_to or default
+
     def _generate_script_envelope(self):
         script_name = self._generate_script_name()
+        script_dir = self._get_script_dir()
+        script = "%s/%s" % (script_dir, script_name)
+        runtime = self._get_script_runtime()
+        if runtime:
+            runner = "%s %s" % (runtime, script)
+        else:
+            # may not work if script dir is mounted noexec.. but it's user's fault for
+            # not writing a shebang line!
+            runner = script
         if self.opts.sudo:
             envelope = (
-                "cat | sudo -i tee /root/%s 1>/dev/null; CATRET=$?; sudo -i chmod 700 /root/%s; "
-                "sudo -i /root/%s %s; RET=$((CATRET+$?)); sudo -i rm -f /root/%s; exit $RET"
+                "cat | sudo -i tee %(script)s 1>/dev/null; CATRET=$?; sudo -i chmod 700 %(script)s; "
+                "sudo -i %(runner)s %(script_args)s; RET=$((CATRET+$?)); sudo -i rm -f %(script)s; exit $RET"
             )
         else:
             envelope = (
-                "cat > /tmp/%s; CATRET=$?; chmod 700 /tmp/%s; /tmp/%s %s; RET=$((CATRET+$?));"
-                "rm -f /tmp/%s; exit $RET" 
+                "cat > %(script)s; CATRET=$?; chmod 700 %(script)s; %(runner)s %(script_args)s; RET=$((CATRET+$?));"
+                "rm -f %(script)s; exit $RET" 
             )
-        return envelope % ((script_name,) * 3 + (self.opts.script_args, script_name))
+        return envelope % {
+          'script': script,
+          'runner': runner,
+          'script_args': self.opts.script_args,
+        }
 
     def setup_manager(self, hosts, args, opts):
         if not opts.script:
