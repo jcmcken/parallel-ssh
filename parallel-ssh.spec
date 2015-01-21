@@ -3,7 +3,7 @@
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
 
 Name:           parallel-ssh
-Version:        3.3.0
+Version:        3.4.0
 Release:        1%{?dist}
 Summary:        Parallel SSH utilities
 
@@ -57,5 +57,7 @@ rm -rf $RPM_BUILD_ROOT
 %{python_sitelib}/*
 
 %changelog
+* Wed Jan 21 2015 Jon McKenzie - 3.4.0
+- Bump to 3.4.0
 * Sun Apr 06 2014 Jon McKenzie - 3.3.0
 - Initial RPM release
