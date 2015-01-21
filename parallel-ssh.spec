@@ -16,6 +16,7 @@ BuildArch:      noarch
 Requires:       python(abi) >= 2.4
 Requires:       python2
 BuildRequires:  python-devel
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description
 Parallel SSH utilities, including parallel SSH, SCP, reverise SCP, and more
