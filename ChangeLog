@@ -1,3 +1,9 @@
+2015-01-21 Jon McKenzie <jcmcken at gmail.com>
+	* Version 3.4.0
+	  - Added the --env option to ``pssh``, for use with ``--script``. This
+	  allows the user to pass ``KEY=VALUE`` pairs to inject into the
+	  environment of the executing script. E.g. ``pssh --script
+	  /tmp/some-script.sh --env foo=bar ...etc...``. 
 2014-04-06 Jon McKenzie <jcmcken at gmail.com>
 	* Version 3.3.0
 	  - Added the --copy-to option for pssh, which allows you to configure

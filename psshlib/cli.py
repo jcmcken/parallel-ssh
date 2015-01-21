@@ -11,6 +11,7 @@ import fcntl
 import sys
 import re
 import logging
+import pipes
 
 from psshlib import psshutil
 from psshlib.manager import Manager, ScpManager, SshManager
@@ -231,6 +232,10 @@ def pssh_option_parser():
     pssh_group.add_option('--args', dest='script_args', 
             help='companion option for --script. Passes SCRIPT_ARGS as arguments'
                  ' to the script run on the remote host.')
+    pssh_group.add_option('--env', dest='env', action='append', metavar='SCRIPT_ENV',
+            default=[],
+            help='specify key=value pairs to inject into the environment of a running '
+                 '--script, e.g. --env="FOO=BAR". Can be specified multiple times')
     pssh_group.add_option('--runtime', 
             help='specify the runtime to use when running the script from --script')
     pssh_group.add_option('--copy-to', default='/tmp',
@@ -305,21 +310,32 @@ class SecureShellCLI(CLI):
             # may not work if script dir is mounted noexec.. but it's user's fault for
             # not writing a shebang line!
             runner = script
+
+        environ = self._generate_script_environ()
+
         if self.opts.sudo:
             envelope = (
                 "cat | sudo -i tee %(script)s 1>/dev/null; CATRET=$?; sudo -i chmod 700 %(script)s; "
-                "sudo -i %(runner)s %(script_args)s; RET=$((CATRET+$?)); sudo -i rm -f %(script)s; exit $RET"
+                "sudo -i %(environ)s %(runner)s %(script_args)s; RET=$((CATRET+$?)); sudo -i rm -f %(script)s; exit $RET"
             )
         else:
             envelope = (
-                "cat > %(script)s; CATRET=$?; chmod 700 %(script)s; %(runner)s %(script_args)s; RET=$((CATRET+$?));"
+                "cat > %(script)s; CATRET=$?; chmod 700 %(script)s; %(environ)s %(runner)s %(script_args)s; RET=$((CATRET+$?));"
                 "rm -f %(script)s; exit $RET" 
             )
         return envelope % {
           'script': script,
           'runner': runner,
           'script_args': self.opts.script_args,
+          'environ': environ,
         }
+
+    def _generate_script_environ(self):
+        environ = []
+        for string in self.opts.env:
+            key, val = string.split('=', 1)
+            environ.append("%s=%s" % (pipes.quote(key), pipes.quote(val)))
+        return ' '.join(environ)
 
     def setup_manager(self, hosts, args, opts):
         if not opts.script:
