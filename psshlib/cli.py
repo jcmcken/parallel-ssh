@@ -91,6 +91,8 @@ def common_parser():
             'spaces, quotes, and backslashes')
     connection_group.add_option('-X', '--extra-arg', dest='extra', action='append',
             metavar='ARG', help='Extra command-line argument')
+    connection_group.add_option('-k', '--allow-keyboard-interrupts', dest='allow_keyboard_interrupts',
+            action='store_true', help='Keyboard interrupts will terminate the process.')
 
     map(parser.add_option_group, [connection_group, output_group, filter_group])
     parser.group_map = { # used so subparsers can easily find option groups
@@ -172,7 +174,7 @@ class CLI(object):
         args = args or self.args
         opts = opts or self.opts
         hosts = hosts or ServerPool(opts)
-    
+
         if args is None:
             raise Exception
         elif not hosts:
@@ -181,7 +183,7 @@ class CLI(object):
         self.setup(opts)
 
         manager = self.setup_manager(hosts, args, opts)
- 
+
         psshutil.run_manager(manager)
 
         exitcode = self.teardown_manager(manager)
@@ -229,19 +231,19 @@ def pssh_option_parser():
             help='when used with the --script option, will do two things differently: '
                  '1) transfer the script to /root instead of /tmp, 2) run the script '
                  'as root, not the login user')
-    pssh_group.add_option('--args', dest='script_args', 
+    pssh_group.add_option('--args', dest='script_args',
             help='companion option for --script. Passes SCRIPT_ARGS as arguments'
                  ' to the script run on the remote host.')
     pssh_group.add_option('--env', dest='env', action='append', metavar='SCRIPT_ENV',
             default=[],
             help='specify key=value pairs to inject into the environment of a running '
                  '--script, e.g. --env="FOO=BAR". Can be specified multiple times')
-    pssh_group.add_option('--runtime', 
+    pssh_group.add_option('--runtime',
             help='specify the runtime to use when running the script from --script')
     pssh_group.add_option('--copy-to', default='/tmp',
             help='where to remotely copy scripts passed via --script (defaults to '
                  '/root if --sudo is passed, otherwise /tmp)')
-       
+
     parser.add_option_group(pssh_group)
     parser.group_map['pssh_group'] = pssh_group
 
@@ -254,10 +256,10 @@ class SecureShellCLI(CLI):
         defaults = common_defaults(timeout=_DEFAULT_TIMEOUT)
         parser.set_defaults(**defaults)
         opts, args = parser.parse_args()
-    
+
         if len(args) == 0 and not opts.send_input and not opts.script:
             parser.error('Command not specified.')
-    
+
         if not opts.host_files and not opts.host_strings:
             parser.error('Hosts not specified.')
 
@@ -266,7 +268,7 @@ class SecureShellCLI(CLI):
 
         if opts.copy_to and not opts.copy_to.startswith('/'):
             parser.error('Remote script directory must be a path')
-    
+
         return opts, args
 
     def setup(self, opts):
@@ -321,7 +323,7 @@ class SecureShellCLI(CLI):
         else:
             envelope = (
                 "cat > %(script)s; CATRET=$?; chmod 700 %(script)s; %(environ)s %(runner)s %(script_args)s; RET=$((CATRET+$?));"
-                "rm -f %(script)s; exit $RET" 
+                "rm -f %(script)s; exit $RET"
             )
         return envelope % {
           'script': script,
@@ -365,7 +367,7 @@ class SecureShellCLI(CLI):
                 cmd.append(cmdline)
             t = SshTask(host, port, user, cmd, cmdline, opts, stdin)
             manager.add_task(t)
-        
+
         return manager
 
     def teardown_manager(self, manager):
@@ -404,16 +406,16 @@ class SecureCopyCLI(CLI):
         defaults = common_defaults()
         parser.set_defaults(**defaults)
         opts, args = parser.parse_args()
-    
+
         if len(args) < 1:
             parser.error('Paths not specified.')
-    
+
         if len(args) < 2:
             parser.error('Remote path not specified.')
-    
+
         if not opts.host_files and not opts.host_strings:
             parser.error('Hosts not specified.')
-    
+
         return opts, args
 
     def setup(self, opts):
@@ -473,16 +475,16 @@ class NukeCLI(CLI):
         defaults = common_defaults(timeout=_DEFAULT_TIMEOUT)
         parser.set_defaults(**defaults)
         opts, args = parser.parse_args()
-    
+
         if len(args) < 1:
             parser.error('Pattern not specified.')
-    
+
         if len(args) > 1:
             parser.error('Extra arguments given after the pattern.')
-    
+
         if not opts.host_files and not opts.host_strings:
             parser.error('Hosts not specified.')
-    
+
         return opts, args
 
     def setup(self, opts):
@@ -547,19 +549,19 @@ class RemoteSyncCLI(CLI):
         defaults = common_defaults()
         parser.set_defaults(**defaults)
         opts, args = parser.parse_args()
-    
+
         if len(args) < 1:
             parser.error('Paths not specified.')
-    
+
         if len(args) < 2:
             parser.error('Remote path not specified.')
-    
+
         if len(args) > 2:
             parser.error('Extra arguments given after the remote path.')
-    
+
         if not opts.host_files and not opts.host_strings:
             parser.error('Hosts not specified.')
-    
+
         return opts, args
 
     def setup(self, opts):
@@ -585,7 +587,7 @@ class RemoteSyncCLI(CLI):
                 ssh += ['-p', port]
             if opts.ssh_args:
                 ssh += [opts.ssh_args]
-    
+
             cmd = ['rsync', '-e', ' '.join(ssh)]
             if opts.verbose:
                 cmd.append('-v')
@@ -629,7 +631,7 @@ def pslurp_option_parser():
             action='store_true', help='recusively copy directories (OPTIONAL)')
     pslurp_group.add_option('-L', '--localdir', dest='localdir',
             help='output directory for remote file copies')
-    
+
     parser.add_option_group(pslurp_group)
     parser.group_map['pslurp_group'] = pslurp_group
 
@@ -641,19 +643,19 @@ class SecureReverseCopyCLI(CLI):
         defaults = common_defaults()
         parser.set_defaults(**defaults)
         opts, args = parser.parse_args()
-    
+
         if len(args) < 1:
             parser.error('Paths not specified.')
-    
+
         if len(args) < 2:
             parser.error('Local path not specified.')
-    
+
         if len(args) > 2:
             parser.error('Extra arguments given after the local path.')
-    
+
         if not opts.host_files and not opts.host_strings:
             parser.error('Hosts not specified.')
-    
+
         return opts, args
 
     def setup(self, opts):
@@ -712,7 +714,7 @@ class SecureReverseCopyCLI(CLI):
             return 3
         for status in statuses:
             if status == 255:
-                return 4 
+                return 4
         for status in statuses:
             if status != 0:
                 return 5
