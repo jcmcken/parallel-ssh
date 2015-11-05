@@ -136,11 +136,16 @@ class Manager(object):
                 # This exception handler tries to clean things up and prints
                 # out a nice status message for each interrupted host.
                 self.interrupted()
+                if self.opts.allow_keyboard_interrupts:
+                    raise
+
 
         except KeyboardInterrupt:
             # This exception handler doesn't print out any fancy status
             # information--it just stops.
             pass
+            if self.opts.allow_keyboard_interrupts:
+                raise
 
         if writer:
             writer.signal_quit()

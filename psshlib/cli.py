@@ -91,6 +91,8 @@ def common_parser():
             'spaces, quotes, and backslashes')
     connection_group.add_option('-X', '--extra-arg', dest='extra', action='append',
             metavar='ARG', help='Extra command-line argument')
+    connection_group.add_option('-k', '--allow-keyboard-interrupts', dest='allow_keyboard_interrupts',
+            action='store_true', help='Keyboard interrupts will terminate the process.')
 
     map(parser.add_option_group, [connection_group, output_group, filter_group])
     parser.group_map = { # used so subparsers can easily find option groups
