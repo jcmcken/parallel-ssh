@@ -52,7 +52,7 @@ class Manager(object):
 
         self.progress_bar = opts.progress_bar
         self.test_cases = opts.test_cases
-    
+
     def _setup_progress_bar(self):
         """ This should be called after ``self.tasks`` is populated
         """
@@ -61,7 +61,7 @@ class Manager(object):
 
     def _split_manager(self):
         # set up the test manager and add first n tasks
-        new_opts = deepcopy(self.opts) 
+        new_opts = deepcopy(self.opts)
         new_opts.__dict__['test_cases'] = None # remove test_cases option, or there'll be a recursion error
         new_opts.__dict__['summary'] = None # don't print summary now, do it later
         test_man = self.__class__(new_opts)
@@ -82,7 +82,7 @@ class Manager(object):
         # add remaining tasks
         map(finish_man.add_task, self.tasks[slice(self.test_cases, None)])
         psshutil.run_manager(finish_man)
-        
+
         return test_man, finish_man
 
     def run(self):
@@ -92,7 +92,7 @@ class Manager(object):
             man1, man2 = self._split_manager()
             self.done = man1.done + man2.done
         else:
-            self._run()    
+            self._run()
 
         self.tally_results()
 
@@ -102,15 +102,15 @@ class Manager(object):
         if self.opts.fork_hosts:
             failed_file = open(self.opts.fork_hosts + '.failed.lst', 'w')
             passed_file = open(self.opts.fork_hosts + '.passed.lst', 'w')
-            
+
             for i in self.ssh_failed + self.killed + self.cmd_failed:
                 failed_file.write(i.host + '\n')
-            
+
             for i in self.succeeded:
                 passed_file.write(i.host + '\n')
 
         return [task.exitstatus for task in self.done]
-    
+
     def _run(self):
         try:
             if self.outdir or self.errdir:
