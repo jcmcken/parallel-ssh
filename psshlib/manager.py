@@ -143,7 +143,6 @@ class Manager(object):
         except KeyboardInterrupt:
             # This exception handler doesn't print out any fancy status
             # information--it just stops.
-            pass
             if self.opts.allow_keyboard_interrupts:
                 raise
 
