@@ -20,13 +20,13 @@ def print_summary(succeeded, ssh_failed, killed, cmd_failed=[]): # cmd_failed is
         ('Tasks Killed', len(killed)),
         ('Tasks Failed', len(cmd_failed))
     )
-    print 
-    print "Summary:"
-    print "  " + format_summary(summary_data)
-    print
-    print "Failure Breakdown:"
-    print "  " + format_summary(failure_data)
-    print
+    print()
+    print("Summary:")
+    print("  " + format_summary(summary_data))
+    print()
+    print("Failure Breakdown:")
+    print("  " + format_summary(failure_data))
+    print()
 
 def format_summary(data):
     nonzero_data = [ i for i in data if i[1] != 0 ]
